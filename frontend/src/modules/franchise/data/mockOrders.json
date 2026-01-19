@@ -1,0 +1,119 @@
+[
+    {
+        "id": "ORD-2024-001",
+        "customer": "Rahul Sharma",
+        "items": [
+            {
+                "id": "p1",
+                "name": "Organic Spinach",
+                "quantity": 2,
+                "price": 40,
+                "unit": "250g"
+            },
+            {
+                "id": "p2",
+                "name": "Shimla Royal Apple",
+                "quantity": 1,
+                "price": 180,
+                "unit": "kg"
+            }
+        ],
+        "total": 260,
+        "status": "incoming",
+        "type": "delivery",
+        "timestamp": "2024-01-19T10:30:00Z",
+        "address": "B-42, Greenfield Colony, New Delhi",
+        "timeline": [
+            {
+                "status": "User Ordered",
+                "time": "2024-01-19T10:30:00Z",
+                "completed": true
+            },
+            {
+                "status": "Head Office Confirmed",
+                "time": "2024-01-19T10:45:00Z",
+                "completed": true
+            },
+            {
+                "status": "Vendor Assigned",
+                "time": "2024-01-19T11:00:00Z",
+                "completed": true
+            },
+            {
+                "status": "Arrived at Franchise",
+                "time": null,
+                "completed": false
+            },
+            {
+                "status": "Out for Delivery",
+                "time": null,
+                "completed": false
+            }
+        ]
+    },
+    {
+        "id": "ORD-2024-002",
+        "customer": "Priya Patel",
+        "items": [
+            {
+                "id": "p3",
+                "name": "Fresh Alphonso Mango",
+                "quantity": 3,
+                "price": 450,
+                "unit": "box"
+            }
+        ],
+        "total": 1350,
+        "status": "assigned",
+        "type": "kiosk",
+        "timestamp": "2024-01-19T11:15:00Z",
+        "address": "Franchise Kiosk - Sector 18",
+        "timeline": [
+            {
+                "status": "User Ordered",
+                "time": "2024-01-19T11:15:00Z",
+                "completed": true
+            },
+            {
+                "status": "Head Office Confirmed",
+                "time": "2024-01-19T11:20:00Z",
+                "completed": true
+            },
+            {
+                "status": "Processing",
+                "time": null,
+                "completed": false
+            }
+        ]
+    },
+    {
+        "id": "ORD-2024-003",
+        "customer": "Amit Verma",
+        "items": [
+            {
+                "id": "p4",
+                "name": "Farm Fresh Milk",
+                "quantity": 2,
+                "price": 60,
+                "unit": "L"
+            }
+        ],
+        "total": 120,
+        "status": "completed",
+        "type": "delivery",
+        "timestamp": "2024-01-18T16:30:00Z",
+        "address": "H-12, Malviya Nagar, New Delhi",
+        "timeline": [
+            {
+                "status": "User Ordered",
+                "time": "2024-01-18T16:30:00Z",
+                "completed": true
+            },
+            {
+                "status": "Delivered",
+                "time": "2024-01-18T17:15:00Z",
+                "completed": true
+            }
+        ]
+    }
+]

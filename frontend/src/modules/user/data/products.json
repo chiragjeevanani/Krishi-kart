@@ -1,0 +1,195 @@
+[
+    {
+        "id": "p1",
+        "name": "Shimla Royal Apple",
+        "price": 180,
+        "unit": "kg",
+        "category": "fruits",
+        "image": "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?q=80&w=800&auto=format&fit=crop",
+        "rating": 4.8,
+        "reviews": 1240,
+        "stock": 450,
+        "supplier": "Shimla Orchards",
+        "description": "Crisp, sweet and juicy Royal Delicious apples directly from the orchards of Shimla. Rich in antioxidants and fiber.",
+        "tags": [
+            "Best Seller",
+            "Fresh"
+        ],
+        "bulkPricing": [
+            {
+                "minQty": 10,
+                "price": 165
+            },
+            {
+                "minQty": 50,
+                "price": 150
+            },
+            {
+                "minQty": 100,
+                "price": 135
+            }
+        ]
+    },
+    {
+        "id": "p2",
+        "name": "Organic Spinach (Palak)",
+        "price": 40,
+        "unit": "250g",
+        "category": "leafy-greens",
+        "image": "https://images.unsplash.com/photo-1576045057995-568f588f82fb?q=80&w=800&auto=format&fit=crop",
+        "rating": 4.9,
+        "reviews": 850,
+        "stock": 120,
+        "supplier": "Green Earth Farm",
+        "description": "Farm-fresh organic spinach leaves, rich in iron and vitamins. Harvested daily for maximum freshness.",
+        "tags": [
+            "Organic",
+            "Daily Essential"
+        ],
+        "bulkPricing": [
+            {
+                "minQty": 20,
+                "price": 35
+            },
+            {
+                "minQty": 100,
+                "price": 30
+            }
+        ]
+    },
+    {
+        "id": "p3",
+        "name": "Alphonso Mango (Ratnagiri)",
+        "price": 1200,
+        "unit": "doz",
+        "category": "fruits",
+        "image": "https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=800&auto=format&fit=crop",
+        "rating": 5.0,
+        "reviews": 3200,
+        "stock": 80,
+        "supplier": "Konkan Farms",
+        "description": "The King of Mangoes! Authentic Ratnagiri Alphonso mangoes known for their rich aroma and sweet pulp.",
+        "tags": [
+            "Premium",
+            "Seasonal"
+        ],
+        "bulkPricing": [
+            {
+                "minQty": 5,
+                "price": 1100
+            },
+            {
+                "minQty": 10,
+                "price": 1000
+            },
+            {
+                "minQty": 25,
+                "price": 900
+            }
+        ]
+    },
+    {
+        "id": "p4",
+        "name": "Fresh Broccoli",
+        "price": 90,
+        "unit": "500g",
+        "category": "vegetables",
+        "image": "https://images.unsplash.com/photo-1459411621453-7b03977f4bef?q=80&w=800&auto=format&fit=crop",
+        "rating": 4.7,
+        "reviews": 560,
+        "stock": 200,
+        "supplier": "Valley Fresh",
+        "description": "High-quality fresh broccoli with dense florets. A superfood packed with vitamin C and K.",
+        "tags": [
+            "Superfood"
+        ],
+        "bulkPricing": [
+            {
+                "minQty": 10,
+                "price": 82
+            },
+            {
+                "minQty": 50,
+                "price": 75
+            }
+        ]
+    },
+    {
+        "id": "p5",
+        "name": "Red Bell Pepper",
+        "price": 120,
+        "unit": "500g",
+        "category": "exotic",
+        "image": "https://images.unsplash.com/photo-1563513331624-391c30c322f1?q=80&w=800&auto=format&fit=crop",
+        "rating": 4.6,
+        "reviews": 420,
+        "stock": 150,
+        "supplier": "Hydroponic Greens",
+        "description": "Sweet and crunchy hydroponically grown red bell peppers. Perfect for salads and stir-fries.",
+        "tags": [
+            "Exotic"
+        ],
+        "bulkPricing": [
+            {
+                "minQty": 5,
+                "price": 110
+            },
+            {
+                "minQty": 20,
+                "price": 100
+            }
+        ]
+    },
+    {
+        "id": "p6",
+        "name": "Fresh Cilantro (Dhaniya)",
+        "price": 15,
+        "unit": "bunch",
+        "category": "herbs",
+        "image": "https://images.unsplash.com/photo-1599940824399-b88887bc5292?q=80&w=800&auto=format&fit=crop",
+        "rating": 4.9,
+        "reviews": 2100,
+        "stock": 500,
+        "supplier": "Local Farmers Co.",
+        "description": "Aromatic fresh cilantro bunch. Essential for garnishing and adding flavor to every Indian dish.",
+        "tags": [
+            "Must Have"
+        ],
+        "bulkPricing": [
+            {
+                "minQty": 50,
+                "price": 12
+            },
+            {
+                "minQty": 200,
+                "price": 10
+            }
+        ]
+    },
+    {
+        "id": "p7",
+        "name": "Carrot (Orange)",
+        "price": 60,
+        "unit": "kg",
+        "category": "vegetables",
+        "image": "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?q=80&w=800&auto=format&fit=crop",
+        "rating": 4.8,
+        "reviews": 980,
+        "stock": 600,
+        "supplier": "Hillside Farms",
+        "description": "Fresh and crunchy carrots, perfect for juicing or raw consumption. Sourced from high-altitude farms.",
+        "tags": [
+            "Farm Fresh"
+        ],
+        "bulkPricing": [
+            {
+                "minQty": 20,
+                "price": 55
+            },
+            {
+                "minQty": 100,
+                "price": 48
+            }
+        ]
+    }
+]

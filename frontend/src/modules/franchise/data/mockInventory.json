@@ -1,0 +1,32 @@
+[
+    {
+        "id": "INV-001",
+        "name": "Organic Spinach",
+        "category": "Vegetables",
+        "expectedQty": 50,
+        "receivedQty": 0,
+        "status": "pending",
+        "vendor": "Green Earth Farm",
+        "lastUpdated": "2024-01-19T09:00:00Z"
+    },
+    {
+        "id": "INV-002",
+        "name": "Shimla Royal Apple",
+        "category": "Fruits",
+        "expectedQty": 100,
+        "receivedQty": 85,
+        "status": "partially_received",
+        "vendor": "Shimla Orchards",
+        "lastUpdated": "2024-01-19T10:15:00Z"
+    },
+    {
+        "id": "INV-003",
+        "name": "Farm Fresh Milk",
+        "category": "Dairy",
+        "expectedQty": 200,
+        "receivedQty": 200,
+        "status": "received",
+        "vendor": "Happy Cows Dairy",
+        "lastUpdated": "2024-01-19T08:30:00Z"
+    }
+]
