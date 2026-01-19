@@ -1,0 +1,42 @@
+[
+    {
+        "id": "VEN-001",
+        "name": "Fresh Farm Vendors",
+        "category": "Organic",
+        "rating": 4.8,
+        "capacity": 85,
+        "status": "active",
+        "ordersFulfilled": 1240,
+        "pendingWorkload": 5
+    },
+    {
+        "id": "VEN-002",
+        "name": "Green Valley Logistics",
+        "category": "Logistics",
+        "rating": 4.5,
+        "capacity": 70,
+        "status": "active",
+        "ordersFulfilled": 850,
+        "pendingWorkload": 12
+    },
+    {
+        "id": "VEN-003",
+        "name": "Quick Mart Delivery",
+        "category": "Last Mile",
+        "rating": 4.2,
+        "capacity": 90,
+        "status": "active",
+        "ordersFulfilled": 2100,
+        "pendingWorkload": 8
+    },
+    {
+        "id": "VEN-004",
+        "name": "Local Farm Select",
+        "category": "Aggregator",
+        "rating": 4.9,
+        "capacity": 40,
+        "status": "inactive",
+        "ordersFulfilled": 420,
+        "pendingWorkload": 0
+    }
+]

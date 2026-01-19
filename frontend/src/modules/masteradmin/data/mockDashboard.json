@@ -1,0 +1,41 @@
+{
+    "metrics": {
+        "totalOrders": {
+            "value": 1248,
+            "label": "Total Orders Today",
+            "change": 12.5,
+            "trend": "up"
+        },
+        "pendingAssignments": {
+            "value": 42,
+            "label": "Pending Assignments",
+            "change": -5.2,
+            "trend": "down"
+        },
+        "activeVendors": {
+            "value": 156,
+            "label": "Active Vendors",
+            "change": 3.8,
+            "trend": "up"
+        },
+        "activeFranchises": {
+            "value": 24,
+            "label": "Active Franchises",
+            "change": 0,
+            "trend": "neutral"
+        },
+        "deliveriesInProgress": {
+            "value": 89,
+            "label": "Deliveries in Progress",
+            "change": 8.4,
+            "trend": "up"
+        },
+        "revenueSummary": {
+            "value": 45280,
+            "label": "Revenue Summary",
+            "change": 15.2,
+            "trend": "up",
+            "currency": "₹"
+        }
+    }
+}

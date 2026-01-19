@@ -35,6 +35,10 @@ import FranchiseProfile from './modules/franchise/pages/ProfileScreen'
 import FranchiseDelivery from './modules/franchise/pages/DeliveryScreen'
 import { FranchiseAuthProvider } from './modules/franchise/contexts/FranchiseAuthContext'
 
+// Master Admin Module Imports
+import { masterAdminRoutes } from './modules/masteradmin/routes/masterAdminRoutes';
+import { vendorRoutes } from './modules/vendor/routes/vendorRoutes';
+
 import { CartProvider } from './modules/user/contexts/CartContext'
 import { OrderProvider } from './modules/user/contexts/OrderContext'
 import { WalletProvider } from './modules/user/contexts/WalletContext'
@@ -86,6 +90,9 @@ function App() {
                       <Route path="profile" element={<FranchiseProfile />} />
                     </Route>
                   </Route>
+
+                  {masterAdminRoutes}
+                  {vendorRoutes}
 
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>

@@ -1,0 +1,52 @@
+[
+    {
+        "id": "ORD-1001",
+        "customer": "Amit Patel",
+        "franchise": "New Delhi Central",
+        "type": "Delivery",
+        "status": "pending_assignment",
+        "vendor": null,
+        "total": 450,
+        "timestamp": "2024-05-20T10:30:00Z"
+    },
+    {
+        "id": "ORD-1002",
+        "customer": "Sonia Verma",
+        "franchise": "Mumbai West",
+        "type": "Takeaway",
+        "status": "assigned",
+        "vendor": "Fresh Farm Vendors",
+        "total": 1200,
+        "timestamp": "2024-05-20T10:45:00Z"
+    },
+    {
+        "id": "ORD-1003",
+        "customer": "Rajesh Kumar",
+        "franchise": "Bangalore North",
+        "type": "Delivery",
+        "status": "in_transit",
+        "vendor": "Green Valley Logistics",
+        "total": 890,
+        "timestamp": "2024-05-20T11:00:00Z"
+    },
+    {
+        "id": "ORD-1004",
+        "customer": "Anjali Singh",
+        "franchise": "Hyderabad East",
+        "type": "Delivery",
+        "status": "delivered",
+        "vendor": "Quick Mart Delivery",
+        "total": 320,
+        "timestamp": "2024-05-20T09:15:00Z"
+    },
+    {
+        "id": "ORD-1005",
+        "customer": "Vikram Rathore",
+        "franchise": "Chennai South",
+        "type": "Takeaway",
+        "status": "ready",
+        "vendor": "Local Farm Select",
+        "total": 560,
+        "timestamp": "2024-05-20T11:20:00Z"
+    }
+]
