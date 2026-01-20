@@ -38,6 +38,7 @@ import { FranchiseAuthProvider } from './modules/franchise/contexts/FranchiseAut
 // Master Admin Module Imports
 import { masterAdminRoutes } from './modules/masteradmin/routes/masterAdminRoutes';
 import { vendorRoutes } from './modules/vendor/routes/vendorRoutes';
+import { deliveryRoutes } from './modules/delivery/routes/deliveryRoutes';
 
 import { CartProvider } from './modules/user/contexts/CartContext'
 import { OrderProvider } from './modules/user/contexts/OrderContext'
@@ -93,6 +94,7 @@ function App() {
 
                   {masterAdminRoutes}
                   {vendorRoutes}
+                  {deliveryRoutes}
 
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
