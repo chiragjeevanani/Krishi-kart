@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import BottomNav from '../navigation/BottomNav';
 import Sidebar from '../navigation/Sidebar';
 import { FranchiseOrdersProvider } from '../../contexts/FranchiseOrdersContext';
+import { useState } from 'react';
 
 export default function FranchiseLayout() {
+    const [isCollapsed, setIsCollapsed] = useState(false);
     const location = useLocation();
 
     // Pages where we might want to hide navigation (e.g., login)
@@ -14,9 +16,9 @@ export default function FranchiseLayout() {
         <FranchiseOrdersProvider>
             <div className="flex min-h-screen bg-[#f8fafd] text-slate-900 font-sans selection:bg-emerald-100">
                 {/* Desktop Sidebar */}
-                {!hideNav && <Sidebar />}
+                {!hideNav && <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />}
 
-                <main className={`flex-1 flex flex-col min-w-0 ${!hideNav ? 'lg:ml-64' : ''}`}>
+                <main className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${!hideNav ? (isCollapsed ? 'lg:ml-20' : 'lg:ml-64') : ''}`}>
                     <div className="flex-1 overflow-x-hidden">
                         <AnimatePresence mode="wait">
                             <motion.div

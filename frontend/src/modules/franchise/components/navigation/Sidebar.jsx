@@ -4,10 +4,9 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
-export default function Sidebar() {
+export default function Sidebar({ isCollapsed, setIsCollapsed }) {
     const navigate = useNavigate();
     const location = useLocation();
-    const [isCollapsed, setIsCollapsed] = useState(false);
 
     const navItems = [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/franchise/dashboard' },

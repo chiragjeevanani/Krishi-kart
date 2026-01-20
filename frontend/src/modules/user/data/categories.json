@@ -10,7 +10,7 @@
         "id": "vegetables",
         "name": "Vegetables",
         "icon": "Carrot",
-        "image": "https://images.unsplash.com/photo-1597362868482-48280eff21bd?w=400&q=80",
+        "image": "https://images.unsplash.com/photo-1579113800032-c38bd7635818?w=400&q=80",
         "color": "bg-emerald-50 text-emerald-600"
     },
     {
@@ -59,7 +59,7 @@
         "id": "roots",
         "name": "Roots",
         "icon": "Carrot",
-        "image": "https://images.unsplash.com/photo-1591130901020-ef93616f9d97?w=400&q=80",
+        "image": "https://images.unsplash.com/photo-1556934776-9ce92a5ce665?w=400&q=80",
         "color": "bg-emerald-50 text-emerald-600"
     },
     {
