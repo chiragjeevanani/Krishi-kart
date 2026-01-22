@@ -27,10 +27,6 @@ const Profile = () => {
         <div className="flex flex-col min-h-full pb-10">
             {/* Profile Header */}
             <div className="px-6 pt-10 pb-12 bg-primary relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-10 opacity-10">
-                    <Settings className="w-40 h-40 text-white" />
-                </div>
-
                 <div className="relative z-10 flex flex-col items-center">
                     <div className="w-24 h-24 rounded-full border-4 border-white/20 p-1 mb-4 relative">
                         <img
@@ -84,9 +80,6 @@ const Profile = () => {
                 <div className="mt-8">
                     <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground px-2 mb-4">Vehicle Status</h2>
                     <div className="bg-slate-900 rounded-3xl p-6 text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-20">
-                            <Truck className="w-24 h-24" />
-                        </div>
                         <div className="relative z-10">
                             <p className="text-xs text-white/60 mb-1">{deliveryPartner.vehicleInfo.type}</p>
                             <h3 className="text-xl font-bold mb-4">{deliveryPartner.vehicleInfo.number}</h3>

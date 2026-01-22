@@ -80,6 +80,7 @@ function App() {
 
                   {/* Franchise Module */}
                   <Route path="/franchise">
+                    <Route index element={<Navigate to="login" replace />} />
                     <Route path="login" element={<FranchiseLogin />} />
                     <Route element={<FranchiseLayout />}>
                       <Route path="dashboard" element={<FranchiseDashboard />} />

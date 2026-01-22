@@ -114,10 +114,6 @@ const Dashboard = () => {
                         whileTap={{ scale: 0.98 }}
                         className="bg-primary text-white p-5 rounded-2xl shadow-xl shadow-primary/20 relative overflow-hidden"
                     >
-                        <div className="absolute top-0 right-0 p-4 opacity-10">
-                            <Navigation className="w-24 h-24" />
-                        </div>
-
                         <div className="relative z-10">
                             <div className="flex justify-between items-start mb-4">
                                 <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
