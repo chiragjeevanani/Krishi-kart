@@ -1,32 +1,102 @@
 [
     {
-        "id": "INV-001",
+        "id": "PROD-001",
+        "name": "Hybrid Tomatoes",
+        "category": "Vegetables",
+        "currentStock": 450,
+        "mbq": 200,
+        "unit": "kg",
+        "supplier": "Farmers Collective A",
+        "lastUpdated": "2026-01-28T10:00:00Z"
+    },
+    {
+        "id": "PROD-002",
+        "name": "Red Onions",
+        "category": "Vegetables",
+        "currentStock": 150,
+        "mbq": 300,
+        "unit": "kg",
+        "supplier": "Nashik Agro",
+        "lastUpdated": "2026-01-28T09:30:00Z"
+    },
+    {
+        "id": "PROD-003",
+        "name": "Shimla Apples",
+        "category": "Fruits",
+        "currentStock": 80,
+        "mbq": 100,
+        "unit": "kg",
+        "supplier": "Hillside Orchards",
+        "lastUpdated": "2026-01-28T11:15:00Z"
+    },
+    {
+        "id": "PROD-004",
+        "name": "Alphonso Mangoes",
+        "category": "Fruits",
+        "currentStock": 10,
+        "mbq": 50,
+        "unit": "box",
+        "supplier": "Ratnagiri Farms",
+        "lastUpdated": "2026-01-28T08:45:00Z"
+    },
+    {
+        "id": "PROD-005",
         "name": "Organic Spinach",
         "category": "Vegetables",
-        "expectedQty": 50,
-        "receivedQty": 0,
-        "status": "pending",
-        "vendor": "Green Earth Farm",
-        "lastUpdated": "2024-01-19T09:00:00Z"
+        "currentStock": 0,
+        "mbq": 40,
+        "unit": "kg",
+        "supplier": "Green Earth Farm",
+        "lastUpdated": "2026-01-27T17:30:00Z"
     },
     {
-        "id": "INV-002",
-        "name": "Shimla Royal Apple",
-        "category": "Fruits",
-        "expectedQty": 100,
-        "receivedQty": 85,
-        "status": "partially_received",
-        "vendor": "Shimla Orchards",
-        "lastUpdated": "2024-01-19T10:15:00Z"
-    },
-    {
-        "id": "INV-003",
+        "id": "PROD-006",
         "name": "Farm Fresh Milk",
         "category": "Dairy",
-        "expectedQty": 200,
-        "receivedQty": 200,
-        "status": "received",
-        "vendor": "Happy Cows Dairy",
-        "lastUpdated": "2024-01-19T08:30:00Z"
+        "currentStock": 200,
+        "mbq": 100,
+        "unit": "L",
+        "supplier": "Happy Cows Dairy",
+        "lastUpdated": "2026-01-28T12:00:00Z"
+    },
+    {
+        "id": "PROD-007",
+        "name": "Basmati Rice",
+        "category": "Grains",
+        "currentStock": 1200,
+        "mbq": 500,
+        "unit": "kg",
+        "supplier": "Punjab Grains",
+        "lastUpdated": "2026-01-25T14:20:00Z"
+    },
+    {
+        "id": "PROD-008",
+        "name": "Coriander Leaves",
+        "category": "Vegetables",
+        "currentStock": 15,
+        "mbq": 20,
+        "unit": "kg",
+        "supplier": "Local Vendor B",
+        "lastUpdated": "2026-01-28T10:15:00Z"
+    },
+    {
+        "id": "PROD-009",
+        "name": "Potatoes (Table)",
+        "category": "Vegetables",
+        "currentStock": 800,
+        "mbq": 400,
+        "unit": "kg",
+        "supplier": "Agro Hub Agra",
+        "lastUpdated": "2026-01-28T09:00:00Z"
+    },
+    {
+        "id": "PROD-010",
+        "name": "Bananas (Robusta)",
+        "category": "Fruits",
+        "currentStock": 45,
+        "mbq": 60,
+        "unit": "dozen",
+        "supplier": "Jalgaon Banana Union",
+        "lastUpdated": "2026-01-28T11:45:00Z"
     }
 ]

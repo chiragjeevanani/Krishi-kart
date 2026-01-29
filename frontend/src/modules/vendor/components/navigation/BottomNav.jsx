@@ -4,16 +4,16 @@ import {
     LayoutDashboard,
     Package,
     ClipboardList,
-    Truck,
+    IndianRupee,
     UserCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
     { id: 'dashboard', path: '/vendor/dashboard', icon: LayoutDashboard, label: 'Home' },
-    { id: 'inventory', path: '/vendor/inventory', icon: Package, label: 'Stock' },
     { id: 'orders', path: '/vendor/orders', icon: ClipboardList, label: 'Orders' },
-    { id: 'dispatch', path: '/vendor/dispatch', icon: Truck, label: 'Dispatch' },
+    { id: 'inventory', path: '/vendor/inventory', icon: Package, label: 'Stock' },
+    { id: 'payments', path: '/vendor/payments', icon: IndianRupee, label: 'Payout' },
     { id: 'profile', path: '/vendor/profile', icon: UserCircle, label: 'Profile' }
 ];
 

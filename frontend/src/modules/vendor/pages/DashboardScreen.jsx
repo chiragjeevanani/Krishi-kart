@@ -10,8 +10,10 @@ import {
     PlusCircle,
     ChevronRight,
     ArrowUpRight,
-    IndianRupee
+    IndianRupee,
+    Percent
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import mockData from '../data/mockVendorStats.json';
 import { cn } from '@/lib/utils';
 
@@ -20,7 +22,7 @@ const StatCard = ({ label, value, icon: Icon, color, index }) => (
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: index * 0.1 }}
-        className="bg-white p-5 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-lg hover:shadow-slate-200/50 transition-all group"
+        className="bg-white p-5 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-lg hover:shadow-slate-200/50 transition-all group pointer-events-none"
     >
         <div className="flex items-start justify-between mb-4">
             <div className={cn(
@@ -32,9 +34,6 @@ const StatCard = ({ label, value, icon: Icon, color, index }) => (
             )}>
                 <Icon size={24} />
             </div>
-            <div className="p-1 px-2 rounded-lg bg-slate-50 group-hover:bg-primary/5 transition-colors">
-                <ChevronRight size={14} className="text-slate-300 group-hover:text-primary transition-colors" />
-            </div>
         </div>
         <div>
             <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none mb-1">{label}</p>
@@ -44,6 +43,7 @@ const StatCard = ({ label, value, icon: Icon, color, index }) => (
 );
 
 export default function DashboardScreen() {
+    const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const { stats, performance } = mockData;
 
@@ -78,29 +78,29 @@ export default function DashboardScreen() {
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
-                    label="Active Stock"
-                    value={stats.availableProduce}
-                    icon={Package}
-                    color="emerald"
+                    label="Commission Rate"
+                    value={`${performance.commission.percentage}%`}
+                    icon={Percent}
+                    color="blue"
                     index={0}
                 />
                 <StatCard
                     label="New Orders"
                     value={stats.ordersAssigned}
                     icon={ClipboardList}
-                    color="blue"
+                    color="amber"
                     index={1}
                 />
                 <StatCard
                     label="Pending Dispatch"
                     value={stats.pendingDispatch}
                     icon={Clock}
-                    color="amber"
+                    color="emerald"
                     index={2}
                 />
                 <StatCard
-                    label="Revenue Today"
-                    value={`₹${performance.revenue.toLocaleString()}`}
+                    label="Monthly Turnover"
+                    value={`₹${performance.monthlyRevenue.toLocaleString()}`}
                     icon={TrendingUp}
                     color="slate"
                     index={3}
@@ -168,11 +168,58 @@ export default function DashboardScreen() {
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-4">Window Closes in 22m</p>
                     </div>
 
-                    <button className="mt-8 group w-full bg-slate-50 hover:bg-slate-900 hover:text-white rounded-2xl py-4 flex items-center justify-center gap-2 transition-all">
+                    <button
+                        onClick={() => navigate('/vendor/dispatch')}
+                        className="mt-8 group w-full bg-slate-50 hover:bg-slate-900 hover:text-white rounded-2xl py-4 flex items-center justify-center gap-2 transition-all"
+                    >
                         <span className="text-[10px] font-black uppercase tracking-widest">Go to Fleet</span>
                         <ArrowUpRight size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                     </button>
                 </motion.div>
+            </div>
+
+            {/* Quick Actions & Recent Activity */}
+            <div className="grid grid-cols-1 gap-6">
+                <div className="bg-white rounded-[40px] p-8 border border-slate-100 shadow-sm">
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 className="text-lg font-black text-slate-900 tracking-tight">Recent Dispatch Logs</h3>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Last 24 Hours</p>
+                        </div>
+                        <button
+                            onClick={() => navigate('/vendor/dispatch-history')}
+                            className="text-[10px] font-black text-primary uppercase tracking-[0.2em] flex items-center gap-1 group"
+                        >
+                            View All History <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                        </button>
+                    </div>
+
+                    <div className="space-y-4">
+                        {[
+                            { id: 'GC-12894', hub: 'South Delhi Hub', wt: '42.5 KG', time: '14:30', status: 'In Transit' },
+                            { id: 'GC-11562', hub: 'Gurugram Hub', wt: '68.2 KG', time: '10:15', status: 'Delivered' }
+                        ].map((log, i) => (
+                            <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-transparent hover:border-slate-200 transition-all group">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
+                                        <Truck size={20} />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-xs font-black text-slate-900">{log.id}</h4>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{log.hub} • {log.wt}</p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-[10px] font-black text-slate-900 tracking-tight">{log.time}</p>
+                                    <span className={cn(
+                                        "text-[8px] font-black uppercase tracking-tighter px-2 py-0.5 rounded-md",
+                                        log.status === 'Delivered' ? "bg-emerald-100 text-emerald-600" : "bg-blue-100 text-blue-600"
+                                    )}>{log.status}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );

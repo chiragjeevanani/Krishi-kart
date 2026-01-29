@@ -18,7 +18,12 @@ import {
     Shield,
     Zap,
     Bell,
-    Server
+    Server,
+    CreditCard,
+    BookOpen,
+    Percent,
+    ClipboardCheck,
+    Briefcase
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -30,24 +35,45 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
     const [expandedMenu, setExpandedMenu] = useState(null);
 
     const navItems = [
-        { icon: LayoutDashboard, label: 'Overview', path: '/masteradmin/dashboard' },
-        { icon: ShoppingBag, label: 'Order Hub', path: '/masteradmin/orders' },
-        { icon: UserCheck, label: 'Vendor Assignment', path: '/masteradmin/assignment' },
-        { icon: Store, label: 'Franchise Network', path: '/masteradmin/franchises' },
-        { icon: Users, label: 'Vendor Management', path: '/masteradmin/vendors' },
-        { icon: Truck, label: 'Delivery Radar', path: '/masteradmin/delivery' },
-        { icon: Monitor, label: 'Kiosk Monitoring', path: '/masteradmin/kiosk' },
-        { icon: BarChart3, label: 'Business Insights', path: '/masteradmin/analytics' },
         {
-            icon: Settings,
-            label: 'Platform Settings',
-            path: '/masteradmin/settings',
-            submenu: [
-                { label: 'Admin Profile', path: '/masteradmin/settings?section=profile', icon: UserCircle },
-                { label: 'Security Protocols', path: '/masteradmin/settings?section=security', icon: Shield },
-                { label: 'Platform Config', path: '/masteradmin/settings?section=platform', icon: Zap },
-                { label: 'Alert Center', path: '/masteradmin/settings?section=notifications', icon: Bell },
-                { label: 'API & Webhooks', path: '/masteradmin/settings?section=api', icon: Server }
+            group: 'Operations', items: [
+                { icon: LayoutDashboard, label: 'Overview', path: '/masteradmin/dashboard' },
+                { icon: ShoppingBag, label: 'Order Hub', path: '/masteradmin/orders' },
+                { icon: UserCheck, label: 'Vendor Assignment', path: '/masteradmin/assignment' },
+                { icon: Truck, label: 'Delivery Radar', path: '/masteradmin/delivery' },
+            ]
+        },
+        {
+            group: 'Finance & Ledger', items: [
+                { icon: CreditCard, label: 'Credit Control', path: '/masteradmin/credit' },
+                { icon: BookOpen, label: 'Financial Ledgers', path: '/masteradmin/ledger' },
+                { icon: Percent, label: 'Commissions', path: '/masteradmin/commission' },
+            ]
+        },
+        {
+            group: 'Network & Supply', items: [
+                { icon: Store, label: 'Franchise Network', path: '/masteradmin/franchises' },
+                { icon: Users, label: 'Vendor Pool', path: '/masteradmin/vendors' },
+                { icon: Monitor, label: 'Stock Monitoring', path: '/masteradmin/stock-monitoring' },
+                { icon: Briefcase, label: 'Purchase Manager', path: '/masteradmin/purchase' },
+            ]
+        },
+        {
+            group: 'Admin Controls', items: [
+                { icon: ClipboardCheck, label: 'Approval Desk', path: '/masteradmin/approvals' },
+                { icon: BarChart3, label: 'Business Insights', path: '/masteradmin/analytics' },
+                {
+                    icon: Settings,
+                    label: 'Platform Settings',
+                    path: '/masteradmin/settings',
+                    submenu: [
+                        { label: 'Admin Profile', path: '/masteradmin/settings?section=profile', icon: UserCircle },
+                        { label: 'Security Protocols', path: '/masteradmin/settings?section=security', icon: Shield },
+                        { label: 'Platform Config', path: '/masteradmin/settings?section=platform', icon: Zap },
+                        { label: 'Alert Center', path: '/masteradmin/settings?section=notifications', icon: Bell },
+                        { label: 'API & Webhooks', path: '/masteradmin/settings?section=api', icon: Server }
+                    ]
+                }
             ]
         }
     ];
@@ -76,81 +102,92 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
             </div>
 
             {/* Nav Items */}
-            <nav className="flex-1 px-4 space-y-1 mt-4 overflow-y-auto no-scrollbar">
-                {navItems.map((item) => {
-                    const isActive = location.pathname === item.path || (item.submenu && location.pathname === item.path);
-                    const isExpanded = expandedMenu === item.label;
+            <nav className="flex-1 px-4 space-y-6 mt-4 overflow-y-auto no-scrollbar pb-10">
+                {navItems.map((group) => (
+                    <div key={group.group} className="space-y-1">
+                        {!isCollapsed && (
+                            <div className="px-4 py-2">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                                    {group.group}
+                                </span>
+                            </div>
+                        )}
+                        {group.items.map((item) => {
+                            const isActive = location.pathname === item.path || (item.submenu && location.pathname === item.path);
+                            const isExpanded = expandedMenu === item.label;
 
-                    return (
-                        <div key={item.label}>
-                            <button
-                                onClick={() => {
-                                    if (item.submenu) {
-                                        setExpandedMenu(isExpanded ? null : item.label);
-                                        if (isCollapsed) setIsCollapsed(false);
-                                    } else {
-                                        navigate(item.path);
-                                    }
-                                }}
-                                className={cn(
-                                    "w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 group",
-                                    isActive && !item.submenu
-                                        ? "bg-primary/10 text-primary"
-                                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-                                )}
-                            >
-                                <item.icon size={20} className={cn("shrink-0", isActive ? "scale-110" : "group-hover:scale-110 transition-transform")} />
-                                {!isCollapsed && (
-                                    <>
-                                        <span className={cn("font-semibold text-sm tracking-tight flex-1 text-left", isActive ? "opacity-100" : "opacity-80 group-hover:opacity-100")}>
-                                            {item.label}
-                                        </span>
-                                        {item.submenu && (
-                                            <ChevronDown size={16} className={cn("transition-transform", isExpanded && "rotate-180")} />
+                            return (
+                                <div key={item.label}>
+                                    <button
+                                        onClick={() => {
+                                            if (item.submenu) {
+                                                setExpandedMenu(isExpanded ? null : item.label);
+                                                if (isCollapsed) setIsCollapsed(false);
+                                            } else {
+                                                navigate(item.path);
+                                            }
+                                        }}
+                                        className={cn(
+                                            "w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 group",
+                                            isActive && !item.submenu
+                                                ? "bg-primary/10 text-primary"
+                                                : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                                         )}
-                                    </>
-                                )}
-                                {isActive && !isCollapsed && !item.submenu && (
-                                    <motion.div
-                                        layoutId="activeNav"
-                                        className="ml-auto w-1.5 h-1.5 rounded-full bg-primary"
-                                    />
-                                )}
-                            </button>
-
-                            {/* Submenu */}
-                            <AnimatePresence>
-                                {item.submenu && isExpanded && !isCollapsed && (
-                                    <motion.div
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: "auto", opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        className="overflow-hidden ml-4 space-y-1 mt-1 border-l border-slate-100 pl-3"
                                     >
-                                        {item.submenu.map((sub) => {
-                                            const isSubActive = location.search.includes(sub.path.split('?')[1]);
-                                            return (
-                                                <button
-                                                    key={sub.path}
-                                                    onClick={() => navigate(sub.path)}
-                                                    className={cn(
-                                                        "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-sm font-medium",
-                                                        isSubActive
-                                                            ? "text-primary bg-primary/5"
-                                                            : "text-slate-400 hover:text-slate-900 hover:bg-slate-50"
-                                                    )}
-                                                >
-                                                    <sub.icon size={16} />
-                                                    <span>{sub.label}</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
-                    );
-                })}
+                                        <item.icon size={20} className={cn("shrink-0", isActive ? "scale-110" : "group-hover:scale-110 transition-transform")} />
+                                        {!isCollapsed && (
+                                            <>
+                                                <span className={cn("font-semibold text-sm tracking-tight flex-1 text-left", isActive ? "opacity-100" : "opacity-80 group-hover:opacity-100")}>
+                                                    {item.label}
+                                                </span>
+                                                {item.submenu && (
+                                                    <ChevronDown size={16} className={cn("transition-transform", isExpanded && "rotate-180")} />
+                                                )}
+                                            </>
+                                        )}
+                                        {isActive && !isCollapsed && !item.submenu && (
+                                            <motion.div
+                                                layoutId="activeNav"
+                                                className="ml-auto w-1.5 h-1.5 rounded-full bg-primary"
+                                            />
+                                        )}
+                                    </button>
+
+                                    {/* Submenu */}
+                                    <AnimatePresence>
+                                        {item.submenu && isExpanded && !isCollapsed && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: "auto", opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                className="overflow-hidden ml-4 space-y-1 mt-1 border-l border-slate-100 pl-3"
+                                            >
+                                                {item.submenu.map((sub) => {
+                                                    const isSubActive = location.search.includes(sub.path.split('?')[1]);
+                                                    return (
+                                                        <button
+                                                            key={sub.path}
+                                                            onClick={() => navigate(sub.path)}
+                                                            className={cn(
+                                                                "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-sm font-medium",
+                                                                isSubActive
+                                                                    ? "text-primary bg-primary/5"
+                                                                    : "text-slate-400 hover:text-slate-900 hover:bg-slate-50"
+                                                            )}
+                                                        >
+                                                            <sub.icon size={16} />
+                                                            <span>{sub.label}</span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            );
+                        })}
+                    </div>
+                ))}
             </nav>
 
             {/* Footer */}

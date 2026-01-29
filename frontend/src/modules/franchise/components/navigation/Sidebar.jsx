@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Store, Package, User, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, ShoppingBasket, Package, User, LogOut, ChevronLeft, ChevronRight, PackageCheck, Truck, Wallet, Monitor } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -10,9 +10,13 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
 
     const navItems = [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/franchise/dashboard' },
-        { icon: ShoppingBag, label: 'Manage Orders', path: '/franchise/orders' },
-        { icon: Store, label: 'Takeaway Kiosk', path: '/franchise/takeaway' },
-        { icon: Package, label: 'Inventory Stock', path: '/franchise/inventory' },
+        { icon: ShoppingBag, label: 'Hotel Orders', path: '/franchise/orders' },
+        { icon: ShoppingBasket, label: 'Order Inventory', path: '/franchise/procurement' },
+        { icon: Package, label: 'Inventory stock', path: '/franchise/inventory' },
+        { icon: PackageCheck, label: 'Vendor Receiving', path: '/franchise/receiving' },
+        { icon: Truck, label: 'Delivery Dispatch', path: '/franchise/dispatch' },
+        { icon: Wallet, label: 'COD Cash', path: '/franchise/cash' },
+        { icon: Monitor, label: 'POS & Weighing', path: '/franchise/pos' },
         { icon: User, label: 'Profile Settings', path: '/franchise/profile' }
     ];
 

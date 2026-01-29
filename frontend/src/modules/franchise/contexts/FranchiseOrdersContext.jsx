@@ -7,17 +7,38 @@ export function FranchiseOrdersProvider({ children }) {
     const [orders, setOrders] = useState(mockOrders);
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        const savedOrders = localStorage.getItem('franchise_hotel_orders');
+        if (savedOrders) {
+            setOrders(JSON.parse(savedOrders));
+        }
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem('franchise_hotel_orders', JSON.stringify(orders));
+    }, [orders]);
+
     const updateOrderStatus = (orderId, newStatus) => {
-        setOrders(prev => prev.map(order =>
-            order.id === orderId ? { ...order, status: newStatus } : order
-        ));
+        setOrders(prev => prev.map(order => {
+            if (order.id === orderId) {
+                const newTimeline = [
+                    ...order.timeline,
+                    { status: newStatus, time: new Date().toISOString(), completed: true }
+                ];
+                return { ...order, status: newStatus, timeline: newTimeline };
+            }
+            return order;
+        }));
     };
 
     const stats = {
         todayOrders: orders.length,
-        pendingDeliveries: orders.filter(o => o.status === 'incoming' || o.status === 'assigned').length,
-        revenue: orders.reduce((acc, curr) => acc + curr.total, 0),
-        takeaway: orders.filter(o => o.type === 'kiosk').length
+        newOrders: orders.filter(o => o.status === 'new').length,
+        preparing: orders.filter(o => o.status === 'preparing').length,
+        outForDelivery: orders.filter(o => o.status === 'out_for_delivery').length,
+        delivered: orders.filter(o => o.status === 'delivered').length,
+        revenue: orders.filter(o => o.status === 'delivered').reduce((acc, curr) => acc + curr.total, 0),
+        pendingCOD: orders.filter(o => o.status === 'delivered' && o.paymentMode === 'COD').reduce((acc, curr) => acc + curr.total, 0)
     };
 
     return (
@@ -28,5 +49,7 @@ export function FranchiseOrdersProvider({ children }) {
 }
 
 export function useFranchiseOrders() {
-    return useContext(FranchiseOrdersContext);
+    const context = useContext(FranchiseOrdersContext);
+    if (!context) throw new Error('useFranchiseOrders must be used within FranchiseOrdersProvider');
+    return context;
 }

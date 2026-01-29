@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Store, Package, User } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Package, User, PackageCheck, Truck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -10,13 +10,14 @@ export default function BottomNav() {
     const navItems = [
         { icon: LayoutDashboard, label: 'Home', path: '/franchise/dashboard' },
         { icon: ShoppingBag, label: 'Orders', path: '/franchise/orders' },
-        { icon: Store, label: 'Takeaway', path: '/franchise/takeaway' },
         { icon: Package, label: 'Inventory', path: '/franchise/inventory' },
+        { icon: PackageCheck, label: 'Receiving', path: '/franchise/receiving' },
+        { icon: Truck, label: 'Delivery', path: '/franchise/dispatch' },
         { icon: User, label: 'Profile', path: '/franchise/profile' }
     ];
 
     return (
-        <div className="bg-white/80 backdrop-blur-xl border-t border-slate-100 px-6 py-3 pb-8 flex justify-between items-center shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
+        <div className="bg-white/80 backdrop-blur-xl border-t border-slate-100 px-3 py-3 pb-8 flex justify-between items-center shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
             {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 return (

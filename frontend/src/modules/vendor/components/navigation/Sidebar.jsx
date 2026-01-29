@@ -6,7 +6,8 @@ import {
     Truck,
     UserCircle,
     LogOut,
-    Sprout
+    Sprout,
+    History
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -14,7 +15,8 @@ const navItems = [
     { id: 'dashboard', path: '/vendor/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'inventory', path: '/vendor/inventory', icon: Package, label: 'Inventory' },
     { id: 'orders', path: '/vendor/orders', icon: ClipboardList, label: 'Manage Orders' },
-    { id: 'dispatch', path: '/vendor/dispatch', icon: Truck, label: 'Dispatch Tracking' },
+    { id: 'dispatch', path: '/vendor/dispatch', icon: Truck, label: 'Active Dispatch' },
+    { id: 'history', path: '/vendor/dispatch-history', icon: History, label: 'Dispatch History' },
     { id: 'profile', path: '/vendor/profile', icon: UserCircle, label: 'Account Settings' }
 ];
 

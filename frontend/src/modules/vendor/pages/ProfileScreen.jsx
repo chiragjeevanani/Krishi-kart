@@ -12,10 +12,14 @@ import {
     Globe,
     ExternalLink,
     Store,
-    Smartphone
+    Smartphone,
+    CreditCard,
+    FileCheck
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import DocumentUploadCard from '../components/DocumentUploadCard';
+import mockDocuments from '../data/mockDocuments.json';
 
 const SettingItem = ({ icon: Icon, label, value, color, onClick }) => (
     <button
@@ -88,6 +92,25 @@ export default function ProfileScreen() {
 
             {/* Settings Sections */}
             <div className="space-y-8">
+                <section className="space-y-4">
+                    <div className="flex items-center justify-between px-2">
+                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">KYC & Compliance</h3>
+                        <span className="text-[8px] font-black text-primary bg-primary/5 px-2 py-1 rounded-md uppercase">Tier 1 Elite</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {mockDocuments.map((doc) => (
+                            <DocumentUploadCard
+                                key={doc.id}
+                                title={doc.name}
+                                icon={doc.type === 'financial' ? CreditCard : doc.type === 'compliance' ? FileCheck : User}
+                                status={doc.status}
+                                fileName={doc.fileName}
+                                uploadDate={doc.uploadDate}
+                            />
+                        ))}
+                    </div>
+                </section>
+
                 <section className="space-y-3">
                     <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Business Operations</h3>
                     <SettingItem icon={Store} label="Entity" value="Business Details & KYC" color="blue" />

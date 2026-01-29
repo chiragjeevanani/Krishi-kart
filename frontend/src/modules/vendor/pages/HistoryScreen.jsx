@@ -11,7 +11,9 @@ import {
     IndianRupee,
     BarChart3,
     TrendingDown,
-    Loader2
+    Loader2,
+    XCircle,
+    Filter
 } from 'lucide-react';
 import mockOrders from '../data/mockVendorOrders.json';
 import { cn } from '@/lib/utils';
@@ -21,12 +23,17 @@ export default function HistoryScreen() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
 
+    const [activeTab, setActiveTab] = useState('all');
+
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 500);
         return () => clearTimeout(timer);
     }, []);
 
-    const completedOrders = mockOrders.filter(o => o.status === 'completed');
+    const filteredOrders = mockOrders.filter(o => {
+        if (activeTab === 'all') return o.status === 'completed' || o.status === 'rejected';
+        return o.status === activeTab;
+    });
 
     if (isLoading) return <div className="p-10 flex justify-center"><Loader2 className="animate-spin text-primary" /></div>;
 
@@ -76,38 +83,72 @@ export default function HistoryScreen() {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[80px] rounded-full -mr-32 -mt-32" />
             </div>
 
+            {/* Filter Tabs */}
+            <div className="flex gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
+                {['all', 'completed', 'rejected'].map(tab => (
+                    <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={cn(
+                            "flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                            activeTab === tab
+                                ? "bg-white text-slate-900 shadow-sm"
+                                : "text-slate-400 hover:text-slate-600"
+                        )}
+                    >
+                        {tab === 'completed' ? 'Delivered' : tab}
+                    </button>
+                ))}
+            </div>
+
             {/* Past Deliveries */}
             <div className="space-y-4">
                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Recent Archives</h3>
 
-                {completedOrders.map((order, index) => (
+                {filteredOrders.map((order, index) => (
                     <motion.div
                         key={order.id}
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className="bg-white p-5 rounded-[32px] border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-lg hover:shadow-slate-200/50 transition-all cursor-pointer"
+                        className={cn(
+                            "bg-white p-5 rounded-[32px] border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-lg hover:shadow-slate-200/50 transition-all cursor-pointer overflow-hidden",
+                            order.status === 'rejected' && "border-red-50"
+                        )}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-all">
-                                <CheckCircle2 size={24} />
+                            <div className={cn(
+                                "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
+                                order.status === 'completed'
+                                    ? "bg-slate-50 text-slate-300 group-hover:bg-emerald-50 group-hover:text-emerald-500"
+                                    : "bg-red-50 text-red-500"
+                            )}>
+                                {order.status === 'completed' ? <CheckCircle2 size={24} /> : <XCircle size={24} />}
                             </div>
                             <div>
                                 <h4 className="text-sm font-black text-slate-900 tracking-tight">{order.franchiseName}</h4>
-                                <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">{new Date(order.timestamp).toLocaleDateString('en-GB')}</p>
+                                <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">
+                                    {new Date(order.timestamp).toLocaleDateString('en-GB')}
+                                    {order.status === 'rejected' && <span className="text-red-400 ml-2 italic">• {order.rejectionReason}</span>}
+                                </p>
                             </div>
                         </div>
                         <div className="text-right">
-                            <div className="flex items-center gap-1 text-sm font-black text-slate-900">
+                            <div className="flex items-center gap-1 text-sm font-black text-slate-900 justify-end">
                                 <IndianRupee size={10} className="text-slate-400" />
                                 {order.total}
                             </div>
-                            <p className="text-[8px] font-bold text-emerald-500 uppercase tracking-tighter mt-1">Paid-Out</p>
+                            <p className={cn(
+                                "text-[8px] font-bold uppercase tracking-tighter mt-1",
+                                order.status === 'completed' ? "text-emerald-500" : "text-red-500"
+                            )}>
+                                {order.status === 'completed' ? 'Paid-Out' : 'Voided'}
+                            </p>
                         </div>
                     </motion.div>
                 ))}
 
-                {completedOrders.length === 0 && (
+                {filteredOrders.length === 0 && (
                     <div className="py-20 text-center">
                         <Calendar size={48} className="text-slate-100 mx-auto mb-4" />
                         <h4 className="text-slate-300 font-black uppercase tracking-widest text-[10px]">No archives found</h4>

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Package,
     ArrowLeft,
+    ArrowRight,
     CheckCircle2,
     Truck,
     ChevronRight,
@@ -22,7 +23,7 @@ export default function PackingScreen() {
     const orderId = searchParams.get('order');
     const [isDispatching, setIsDispatching] = useState(false);
     const [checkedItems, setCheckedItems] = useState({});
-    const [step, setStep] = useState(1); // 1: Packing, 2: Weight, 3: Dispatch
+    const [step, setStep] = useState(1); // 1: Packing, 2: Weight, 3: Dispatch, 4: Success
 
     const order = mockOrders.find(o => o.id === orderId) || mockOrders[0];
 
@@ -45,31 +46,35 @@ export default function PackingScreen() {
         setIsDispatching(true);
         setTimeout(() => {
             setIsDispatching(false);
-            navigate('/vendor/dashboard');
+            setStep(4);
         }, 2000);
     };
 
     return (
         <div className="space-y-6 pb-20">
-            <header className="flex items-center gap-4">
-                <button onClick={() => navigate(-1)} className="p-2 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-slate-100">
-                    <ArrowLeft size={20} />
-                </button>
-                <div>
-                    <h1 className="text-xl font-black text-slate-900 tracking-tight">Packing & Dispatch</h1>
-                    <p className="text-[10px] font-black text-primary uppercase tracking-widest">{order.id} Compliance</p>
-                </div>
-            </header>
+            {step < 4 && (
+                <header className="flex items-center gap-4">
+                    <button onClick={() => navigate(-1)} className="p-2 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-slate-100">
+                        <ArrowLeft size={20} />
+                    </button>
+                    <div>
+                        <h1 className="text-xl font-black text-slate-900 tracking-tight">Packing & Dispatch</h1>
+                        <p className="text-[10px] font-black text-primary uppercase tracking-widest">{order.id} Compliance</p>
+                    </div>
+                </header>
+            )}
 
             {/* Stepper info */}
-            <div className="flex gap-4 mb-4">
-                {[1, 2, 3].map(i => (
-                    <div key={i} className={cn(
-                        "flex-1 h-1.5 rounded-full transition-all duration-500",
-                        step >= i ? "bg-primary shadow-[0_0_10px_rgba(22,163,74,0.3)]" : "bg-slate-100"
-                    )} />
-                ))}
-            </div>
+            {step < 4 && (
+                <div className="flex gap-4 mb-4">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className={cn(
+                            "flex-1 h-1.5 rounded-full transition-all duration-500",
+                            step >= i ? "bg-primary shadow-[0_0_10px_rgba(22,163,74,0.3)]" : "bg-slate-100"
+                        )} />
+                    ))}
+                </div>
+            )}
 
             <AnimatePresence mode="wait">
                 {step === 1 && (
@@ -205,6 +210,57 @@ export default function PackingScreen() {
                                 {isDispatching ? <Loader2 size={18} className="animate-spin" /> : <>Handoff to Dispatch <ArrowRight size={18} /></>}
                             </button>
                             <button onClick={() => setStep(2)} className="w-full text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-slate-900 transition-colors py-2">Re-calibrate Scale</button>
+                        </div>
+                    </motion.div>
+                )}
+
+                {step === 4 && (
+                    <motion.div
+                        key="step4"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-white p-10 rounded-[48px] border border-slate-100 shadow-2xl text-center space-y-8"
+                    >
+                        <div className="w-24 h-24 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto shadow-lg shadow-emerald-100">
+                            <CheckCircle2 size={48} />
+                        </div>
+
+                        <div className="space-y-2">
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tighter italic">SUCCESSFULLY DISPATCHED</h3>
+                            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Consignment ID: GC-{Math.floor(Math.random() * 90000) + 10000}</p>
+                        </div>
+
+                        <div className="bg-slate-50 p-8 rounded-[32px] border border-slate-100 text-left space-y-4">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Recipient Hub</span>
+                                <span className="text-sm font-black text-slate-900">{order.franchiseName}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Weight</span>
+                                <span className="text-sm font-black text-slate-900">42.5 KG</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</span>
+                                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-100 text-emerald-600 rounded-md text-[9px] font-black uppercase">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                    In Transit
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <button
+                                onClick={() => navigate('/vendor/dashboard')}
+                                className="w-full bg-slate-900 text-white py-5 rounded-[24px] font-black text-sm flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all"
+                            >
+                                Back to Dashboard
+                            </button>
+                            <button
+                                onClick={() => navigate('/vendor/dispatch-history')}
+                                className="w-full text-[10px] font-black text-primary uppercase tracking-[0.2em] hover:text-emerald-700 transition-colors py-2 flex items-center justify-center gap-2"
+                            >
+                                View Dispatch History <ChevronRight size={14} />
+                            </button>
                         </div>
                     </motion.div>
                 )}

@@ -11,6 +11,14 @@ import TakeawayMonitoringScreen from '../pages/TakeawayMonitoringScreen';
 import AnalyticsScreen from '../pages/AnalyticsScreen';
 import SettingsScreen from '../pages/SettingsScreen';
 
+// New Phase 2 & 3 Screens
+import CreditManagementScreen from '../pages/CreditManagementScreen';
+import LedgerSystemScreen from '../pages/LedgerSystemScreen';
+import CommissionControlScreen from '../pages/CommissionControlScreen';
+import FranchiseStockMonitoringScreen from '../pages/FranchiseStockMonitoringScreen';
+import PurchaseManagerScreen from '../pages/PurchaseManagerScreen';
+import OnboardingApprovalScreen from '../pages/OnboardingApprovalScreen';
+
 export const masterAdminRoutes = (
     <Route path="/masteradmin" element={<MasterAdminLayout />}>
         <Route index element={<DashboardScreen />} />
@@ -24,5 +32,17 @@ export const masterAdminRoutes = (
         <Route path="kiosk" element={<TakeawayMonitoringScreen />} />
         <Route path="analytics" element={<AnalyticsScreen />} />
         <Route path="settings" element={<SettingsScreen />} />
+
+        {/* Financial Routes */}
+        <Route path="credit" element={<CreditManagementScreen />} />
+        <Route path="ledger" element={<LedgerSystemScreen />} />
+        <Route path="commission" element={<CommissionControlScreen />} />
+
+        {/* Inventory & Supply Routes */}
+        <Route path="stock-monitoring" element={<FranchiseStockMonitoringScreen />} />
+        <Route path="purchase" element={<PurchaseManagerScreen />} />
+
+        {/* Admin Approval Routes */}
+        <Route path="approvals" element={<OnboardingApprovalScreen />} />
     </Route>
 );

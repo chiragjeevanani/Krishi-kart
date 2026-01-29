@@ -9,6 +9,12 @@
     "performance": {
         "fulfillmentRate": 98.4,
         "avgPrepTime": "45m",
-        "revenue": 45280
+        "revenue": 45280,
+        "monthlyRevenue": 452800,
+        "commission": {
+            "percentage": 12.5,
+            "monthlyEarnings": 56600,
+            "netPayout": 396200
+        }
     }
 }

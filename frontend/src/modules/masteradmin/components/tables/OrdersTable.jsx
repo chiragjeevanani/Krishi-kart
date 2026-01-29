@@ -1,6 +1,23 @@
 import { motion } from 'framer-motion';
 import StatusBadge from '../common/StatusBadge';
-import { MoreVertical, ExternalLink, IndianRupee } from 'lucide-react';
+import { MoreVertical, ExternalLink, IndianRupee, CreditCard, Wallet, Banknote } from 'lucide-react';
+
+const PaymentBadge = ({ method }) => {
+    const config = {
+        'Prepaid': { icon: CreditCard, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+        'COD': { icon: Banknote, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+        'Credit': { icon: Wallet, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' }
+    };
+
+    const { icon: Icon, color, bg, border } = config[method] || config['COD'];
+
+    return (
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tight border ${bg} ${color} ${border}`}>
+            <Icon size={12} />
+            {method}
+        </span>
+    );
+};
 
 export default function OrdersTable({ orders }) {
     return (
@@ -10,9 +27,9 @@ export default function OrdersTable({ orders }) {
                     <tr className="text-slate-400 text-xs font-bold uppercase tracking-widest">
                         <th className="px-6 py-4 font-black">Order ID</th>
                         <th className="px-6 py-4 font-black">Customer</th>
-                        <th className="px-6 py-4 font-black">Type</th>
+                        <th className="px-6 py-4 font-black">Payment</th>
                         <th className="px-6 py-4 font-black">Status</th>
-                        <th className="px-6 py-4 font-black">Franchise</th>
+                        <th className="px-6 py-4 font-black">Fulfilment</th>
                         <th className="px-6 py-4 font-black">Amount</th>
                         <th className="px-6 py-4 font-black">Actions</th>
                     </tr>
@@ -32,17 +49,22 @@ export default function OrdersTable({ orders }) {
                             <td className="px-6 py-5 border-y border-slate-100 group-hover:border-primary/20 transition-colors">
                                 <div className="flex flex-col">
                                     <span className="font-bold text-slate-800 text-sm">{order.customer}</span>
-                                    <span className="text-[10px] text-slate-400 font-medium">Verified User</span>
+                                    <span className="text-[10px] text-slate-400 font-medium">{order.franchise}</span>
                                 </div>
                             </td>
                             <td className="px-6 py-5 border-y border-slate-100 group-hover:border-primary/20 transition-colors">
-                                <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-lg uppercase tracking-wider">{order.type}</span>
+                                <PaymentBadge method={order.paymentMethod || 'COD'} />
                             </td>
                             <td className="px-6 py-5 border-y border-slate-100 group-hover:border-primary/20 transition-colors">
                                 <StatusBadge status={order.status} />
                             </td>
                             <td className="px-6 py-5 border-y border-slate-100 group-hover:border-primary/20 transition-colors">
-                                <span className="text-xs font-bold text-slate-500">{order.franchise}</span>
+                                <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-lg ${order.fulfilmentStatus === 'completed' ? 'bg-emerald-100 text-emerald-700' :
+                                        order.fulfilmentStatus === 'pending' ? 'bg-amber-100 text-amber-700' :
+                                            'bg-blue-100 text-blue-700'
+                                    }`}>
+                                    {order.fulfilmentStatus || 'Pending'}
+                                </span>
                             </td>
                             <td className="px-6 py-5 border-y border-slate-100 group-hover:border-primary/20 transition-colors">
                                 <div className="flex items-center gap-1 font-black text-slate-900 text-sm">

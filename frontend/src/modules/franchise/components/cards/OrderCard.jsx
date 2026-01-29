@@ -1,87 +1,120 @@
 import { motion } from 'framer-motion';
-import { ShoppingBag, MapPin, Clock, ChevronRight, CheckCircle2, XCircle, Truck } from 'lucide-react';
+import { ShoppingBag, MapPin, Clock, ChevronRight, CheckCircle2, XCircle, Truck, Info, CreditCard, Wallet, Landmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import StatusBadge from '../common/StatusBadge';
 
 export default function OrderCard({ order, onAction }) {
-    const statusConfig = {
-        incoming: { icon: ShoppingBag, color: 'text-blue-500', bg: 'bg-blue-50', label: 'New Order' },
-        assigned: { icon: Truck, color: 'text-orange-500', bg: 'bg-orange-50', label: 'In Transit' },
-        completed: { icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50', label: 'Delivered' },
-        takeaway: { icon: CheckCircle2, color: 'text-purple-500', bg: 'bg-purple-50', label: 'Takeaway' },
-        cancelled: { icon: XCircle, color: 'text-red-500', bg: 'bg-red-50', label: 'Cancelled' }
+    const getPaymentIcon = (mode) => {
+        switch (mode?.toLowerCase()) {
+            case 'prepaid': return <CreditCard size={14} className="text-emerald-500" />;
+            case 'cod': return <Wallet size={14} className="text-blue-500" />;
+            case 'credit': return <Landmark size={14} className="text-slate-500" />;
+            default: return <Info size={14} />;
+        }
     };
-
-    const config = statusConfig[order.status] || statusConfig.incoming;
 
     return (
         <motion.div
             layout
             initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-[28px] overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg transition-all group"
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-white rounded-[32px] overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-green-900/5 transition-all group"
         >
-            <div className="p-5">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                        <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", config.bg)}>
-                            <config.icon size={20} className={config.color} />
+            <div className="p-6">
+                {/* Header: Hotel Info & Status */}
+                <div className="flex items-start justify-between mb-5">
+                    <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-primary/5 group-hover:border-primary/20 transition-colors">
+                            <ShoppingBag size={24} className="text-slate-400 group-hover:text-primary" />
                         </div>
                         <div>
-                            <h4 className="text-sm font-black text-slate-900 tracking-tight">{order.id}</h4>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{order.timestamp ? new Date(order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}</p>
+                            <h4 className="text-base font-black text-slate-900 tracking-tight leading-tight">{order.hotelName}</h4>
+                            <div className="flex items-center gap-2 mt-1">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{order.id}</span>
+                                <div className="w-1 h-1 rounded-full bg-slate-200" />
+                                <div className="flex items-center gap-1">
+                                    {getPaymentIcon(order.paymentMode)}
+                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-tight">{order.paymentMode}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className={cn("px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tight", config.bg, config.color)}>
-                        {config.label}
-                    </div>
+                    <StatusBadge status={order.status} />
                 </div>
 
-                {/* Content */}
-                <div className="space-y-3">
-                    <div className="flex items-start gap-2">
-                        <MapPin size={14} className="text-slate-300 mt-0.5" />
-                        <p className="text-xs font-bold text-slate-600 leading-tight">{order.address}</p>
+                {/* Content: Delivery Info */}
+                <div className="grid grid-cols-2 gap-4 py-4 border-y border-slate-50">
+                    <div className="space-y-1">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Delivery Slot</p>
+                        <div className="flex items-center gap-2">
+                            <Clock size={14} className="text-primary" />
+                            <span className="text-xs font-bold text-slate-700">{order.deliverySlot}</span>
+                        </div>
                     </div>
-
-                    <div className="flex items-center gap-2">
-                        <Clock size={14} className="text-slate-300" />
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                            {order.items.length} Items • Total Value: <span className="text-slate-900 font-black">₹{order.total}</span>
-                        </p>
+                    <div className="space-y-1">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Order Value</p>
+                        <p className="text-sm font-black text-slate-900 tracking-tight">₹{order.total.toLocaleString()}</p>
+                    </div>
+                    <div className="col-span-2 space-y-1">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Delivery Address</p>
+                        <div className="flex items-start gap-2">
+                            <MapPin size={14} className="text-slate-300 mt-0.5 shrink-0" />
+                            <p className="text-xs font-bold text-slate-500 leading-tight">{order.address}</p>
+                        </div>
                     </div>
                 </div>
 
                 {/* Actions */}
-                <div className="mt-6 flex gap-2">
-                    {order.status === 'incoming' && (
+                <div className="mt-6 flex gap-3">
+                    {order.status === 'new' && (
                         <>
                             <button
-                                onClick={(e) => { e.stopPropagation(); onAction?.(order.id, 'assigned'); }}
-                                className="flex-1 h-11 bg-primary text-white rounded-xl font-black uppercase text-[10px] tracking-widest active:scale-95 transition-all shadow-lg shadow-green-100"
+                                onClick={() => onAction?.(order.id, 'preparing')}
+                                className="flex-1 h-12 bg-primary text-white rounded-[18px] font-black uppercase text-[10px] tracking-widest hover:bg-primary/90 active:scale-95 transition-all shadow-lg shadow-primary/20"
                             >
                                 Accept Order
                             </button>
                             <button
-                                onClick={(e) => { e.stopPropagation(); onAction?.(order.id, 'cancelled'); }}
-                                className="w-11 h-11 rounded-xl bg-red-50 text-red-500 flex items-center justify-center active:scale-95 transition-all"
+                                onClick={() => onAction?.(order.id, 'cancelled')}
+                                className="w-12 h-12 rounded-[18px] bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 active:scale-95 transition-all"
                             >
-                                <XCircle size={18} />
+                                <XCircle size={20} />
                             </button>
                         </>
                     )}
-                    {order.status === 'assigned' && (
+
+                    {order.status === 'preparing' && (
                         <button
-                            onClick={(e) => { e.stopPropagation(); onAction?.(order.id, 'completed'); }}
-                            className="flex-1 h-11 bg-orange-500 text-white rounded-xl font-black uppercase text-[10px] tracking-widest active:scale-95 transition-all shadow-lg shadow-orange-100"
+                            onClick={() => onAction?.(order.id, 'ready')}
+                            className="flex-1 h-12 bg-orange-500 text-white rounded-[18px] font-black uppercase text-[10px] tracking-widest hover:bg-orange-600 active:scale-95 transition-all shadow-lg shadow-orange-100"
                         >
-                            Mark Picked Up
+                            Mark Ready to Dispatch
                         </button>
                     )}
-                    {(order.status === 'completed' || order.status === 'takeaway') && (
-                        <button className="flex-1 h-11 bg-slate-50 text-slate-400 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2">
-                            Order closed <CheckCircle2 size={16} />
+
+                    {order.status === 'ready' && (
+                        <button
+                            onClick={() => onAction?.(order.id, 'out_for_delivery')}
+                            className="flex-1 h-12 bg-indigo-500 text-white rounded-[18px] font-black uppercase text-[10px] tracking-widest hover:bg-indigo-600 active:scale-95 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2"
+                        >
+                            Assign & Dispatch <Truck size={16} />
                         </button>
+                    )}
+
+                    {order.status === 'out_for_delivery' && (
+                        <button
+                            onClick={() => onAction?.(order.id, 'delivered')}
+                            className="flex-1 h-12 bg-emerald-500 text-white rounded-[18px] font-black uppercase text-[10px] tracking-widest hover:bg-emerald-600 active:scale-95 transition-all shadow-lg shadow-emerald-100"
+                        >
+                            Mark as Delivered
+                        </button>
+                    )}
+
+                    {order.status === 'delivered' && (
+                        <div className="flex-1 h-12 bg-slate-50 text-slate-400 rounded-[18px] font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 border border-slate-100">
+                            Fulfillment Complete <CheckCircle2 size={16} />
+                        </div>
                     )}
                 </div>
             </div>

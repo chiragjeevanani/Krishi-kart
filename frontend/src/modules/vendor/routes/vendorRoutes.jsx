@@ -9,7 +9,9 @@ import OrderDetailScreen from '../pages/OrderDetailScreen';
 import PackingScreen from '../pages/PackingScreen';
 import StockAlertsScreen from '../pages/StockAlertsScreen';
 import HistoryScreen from '../pages/HistoryScreen';
+import DispatchHistoryScreen from '../pages/DispatchHistoryScreen';
 import ProfileScreen from '../pages/ProfileScreen';
+import PaymentsScreen from '../pages/PaymentsScreen';
 import * as Placeholders from '../pages/Placeholders';
 
 // For now using placeholders, will replace with real components as built
@@ -23,8 +25,10 @@ export const vendorRoutes = (
         <Route path="orders" element={<OrdersScreen />} />
         <Route path="orders/:id" element={<OrderDetailScreen />} />
         <Route path="dispatch" element={<PackingScreen />} />
+        <Route path="dispatch-history" element={<DispatchHistoryScreen />} />
         <Route path="alerts" element={<StockAlertsScreen />} />
         <Route path="history" element={<HistoryScreen />} />
+        <Route path="payments" element={<PaymentsScreen />} />
         <Route path="profile" element={<ProfileScreen />} />
     </Route>
 );

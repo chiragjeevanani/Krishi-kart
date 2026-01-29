@@ -51,5 +51,29 @@
         "deadline": "2024-10-24T14:00:00",
         "priority": "low",
         "timestamp": "2024-10-24T09:00:00"
+    },
+    {
+        "id": "ORD-V-2003",
+        "franchiseName": "Faridabad North",
+        "items": [
+            {
+                "name": "Red Carrots",
+                "quantity": 30,
+                "unit": "kg"
+            }
+        ],
+        "total": 1050,
+        "status": "rejected",
+        "deadline": "2024-10-25T12:00:00",
+        "priority": "medium",
+        "timestamp": "2024-10-25T08:00:00",
+        "rejectionReason": "Insufficient stock availability for requested quantity",
+        "rejectedItems": [
+            {
+                "name": "Red Carrots",
+                "requestedQty": 30,
+                "rejectedQty": 30
+            }
+        ]
     }
 ]

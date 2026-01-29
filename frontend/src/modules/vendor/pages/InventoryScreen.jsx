@@ -22,6 +22,7 @@ export default function InventoryScreen() {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('All');
     const [inventory, setInventory] = useState(mockProduce);
+    const [activeMenuId, setActiveMenuId] = useState(null);
 
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 600);
@@ -135,9 +136,53 @@ export default function InventoryScreen() {
                                             <p className="text-[10px] font-black text-primary uppercase tracking-widest leading-none mb-1">{item.category}</p>
                                             <h4 className="text-lg font-black text-slate-900 tracking-tight leading-none">{item.name}</h4>
                                         </div>
-                                        <button className="text-slate-300 hover:text-slate-600 transition-colors">
-                                            <MoreVertical size={16} />
-                                        </button>
+                                        <div className="relative">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setActiveMenuId(activeMenuId === item.id ? null : item.id);
+                                                }}
+                                                className={cn(
+                                                    "w-8 h-8 rounded-full flex items-center justify-center transition-all",
+                                                    activeMenuId === item.id ? "bg-slate-900 text-white" : "text-slate-300 hover:text-slate-600 hover:bg-slate-50"
+                                                )}
+                                            >
+                                                <MoreVertical size={16} />
+                                            </button>
+
+                                            <AnimatePresence>
+                                                {activeMenuId === item.id && (
+                                                    <>
+                                                        {/* Backdrop to close menu */}
+                                                        <div
+                                                            className="fixed inset-0 z-40"
+                                                            onClick={() => setActiveMenuId(null)}
+                                                        />
+                                                        <motion.div
+                                                            initial={{ opacity: 0, scale: 0.9, y: -10 }}
+                                                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                            exit={{ opacity: 0, scale: 0.9, y: -10 }}
+                                                            className="absolute right-0 mt-2 w-32 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden"
+                                                        >
+                                                            <button
+                                                                className="w-full flex items-center gap-2 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-colors"
+                                                                onClick={() => setActiveMenuId(null)}
+                                                            >
+                                                                <Edit2 size={14} />
+                                                                Edit
+                                                            </button>
+                                                            <button
+                                                                className="w-full flex items-center gap-2 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 transition-colors"
+                                                                onClick={() => setActiveMenuId(null)}
+                                                            >
+                                                                <Trash2 size={14} />
+                                                                Delete
+                                                            </button>
+                                                        </motion.div>
+                                                    </>
+                                                )}
+                                            </AnimatePresence>
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-2 mt-3 text-slate-900">
                                         <IndianRupee size={12} className="text-slate-400" />
@@ -169,15 +214,7 @@ export default function InventoryScreen() {
                                 </div>
                             </div>
 
-                            {/* Hover Action Overlay */}
-                            <div className="absolute inset-y-0 right-0 w-12 bg-slate-900/5 translate-x-12 group-hover:translate-x-0 transition-transform flex flex-col items-center justify-center gap-4 border-l border-white/20">
-                                <button className="text-slate-600 hover:text-primary transition-colors">
-                                    <Edit2 size={16} />
-                                </button>
-                                <button className="text-slate-600 hover:text-red-500 transition-colors">
-                                    <Trash2 size={16} />
-                                </button>
-                            </div>
+
                         </motion.div>
                     ))}
                 </AnimatePresence>

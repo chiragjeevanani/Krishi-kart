@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import AppLayout from './modules/user/layouts/AppLayout'
 import SplashScreen from './modules/user/pages/SplashScreen'
@@ -23,17 +24,25 @@ import AboutScreen from './modules/user/pages/AboutScreen'
 import WishlistScreen from './modules/user/pages/WishlistScreen'
 import { WishlistProvider } from './modules/user/contexts/WishlistContext'
 
-// Franchise Module Imports
-import FranchiseLayout from './modules/franchise/components/layout/FranchiseLayout'
-import FranchiseLogin from './modules/franchise/pages/LoginScreen'
-import FranchiseDashboard from './modules/franchise/pages/DashboardScreen'
-import FranchiseOrders from './modules/franchise/pages/OrdersScreen'
-import OrderDetail from './modules/franchise/pages/OrderDetailScreen'
-import FranchiseTakeaway from './modules/franchise/pages/TakeawayScreen'
-import FranchiseInventory from './modules/franchise/pages/InventoryScreen'
-import FranchiseProfile from './modules/franchise/pages/ProfileScreen'
-import FranchiseDelivery from './modules/franchise/pages/DeliveryScreen'
 import { FranchiseAuthProvider } from './modules/franchise/contexts/FranchiseAuthContext'
+import { FranchiseOrdersProvider } from './modules/franchise/contexts/FranchiseOrdersContext'
+import { InventoryProvider } from './modules/franchise/contexts/InventoryContext'
+import { GRNProvider } from './modules/franchise/contexts/GRNContext'
+import { CODProvider } from './modules/franchise/contexts/CODContext'
+
+// Franchise Module Lazy Imports
+const FranchiseLayout = lazy(() => import('./modules/franchise/components/layout/FranchiseLayout'));
+const FranchiseDashboard = lazy(() => import('./modules/franchise/pages/DashboardScreen'));
+const FranchiseOrders = lazy(() => import('./modules/franchise/pages/OrdersScreen'));
+const OrderDetail = lazy(() => import('./modules/franchise/pages/OrderDetailScreen'));
+const FranchiseInventory = lazy(() => import('./modules/franchise/pages/InventoryScreen'));
+const ReceivingScreen = lazy(() => import('./modules/franchise/pages/ReceivingScreen'));
+const FranchiseDelivery = lazy(() => import('./modules/franchise/pages/DeliveryScreen'));
+const CODCashScreen = lazy(() => import('./modules/franchise/pages/CashManagementScreen'));
+const POSWeighingScreen = lazy(() => import('./modules/franchise/pages/POSScreen'));
+const ProcurementScreen = lazy(() => import('./modules/franchise/pages/ProcurementScreen'));
+const FranchiseProfile = lazy(() => import('./modules/franchise/pages/ProfileScreen'));
+const FranchiseLogin = lazy(() => import('./modules/franchise/pages/LoginScreen'));
 
 // Master Admin Module Imports
 import { masterAdminRoutes } from './modules/masteradmin/routes/masterAdminRoutes';
@@ -47,63 +56,80 @@ import { WalletProvider } from './modules/user/contexts/WalletContext'
 function App() {
   return (
     <FranchiseAuthProvider>
-      <WishlistProvider>
-        <WalletProvider>
-          <OrderProvider>
-            <CartProvider>
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<SplashScreen />} />
-                  <Route path="/login" element={<LoginScreen />} />
+      <InventoryProvider>
+        <GRNProvider>
+          <CODProvider>
+            <FranchiseOrdersProvider>
+              <WishlistProvider>
+                <WalletProvider>
+                  <OrderProvider>
+                    <CartProvider>
+                      <BrowserRouter>
+                        <Suspense fallback={
+                          <div className="h-screen w-full flex items-center justify-center bg-slate-50">
+                            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                          </div>
+                        }>
+                          <Routes>
+                            <Route path="/" element={<SplashScreen />} />
+                            <Route path="/login" element={<LoginScreen />} />
 
-                  <Route element={<AppLayout />}>
-                    <Route path="/home" element={<HomeScreen />} />
-                    <Route path="/categories" element={<CategoriesScreen />} />
-                    <Route path="/products/:category" element={<ProductListScreen />} />
-                    <Route path="/product/:id" element={<ProductDetailScreen />} />
-                    <Route path="/cart" element={<CartScreen />} />
-                    <Route path="/checkout" element={<CheckoutScreen />} />
-                    <Route path="/profile" element={<ProfileScreen />} />
-                    <Route path="/orders" element={<OrdersScreen />} />
-                    <Route path="/edit-profile" element={<EditProfileScreen />} />
-                    <Route path="/address-book" element={<AddressBookScreen />} />
-                    <Route path="/track-order/:id" element={<OrderTrackingScreen />} />
-                    <Route path="/order-summary/:id" element={<OrderSummaryScreen />} />
-                    <Route path="/wallet" element={<WalletScreen />} />
-                    <Route path="/notifications" element={<NotificationsScreen />} />
-                    <Route path="/favorites" element={<FavoritesScreen />} />
-                    <Route path="/wishlist" element={<WishlistScreen />} />
-                    <Route path="/verification" element={<VerificationScreen />} />
-                    <Route path="/help-support" element={<HelpSupportScreen />} />
-                    <Route path="/about" element={<AboutScreen />} />
-                  </Route>
+                            <Route element={<AppLayout />}>
+                              <Route path="/home" element={<HomeScreen />} />
+                              <Route path="/categories" element={<CategoriesScreen />} />
+                              <Route path="/products/:category" element={<ProductListScreen />} />
+                              <Route path="/product/:id" element={<ProductDetailScreen />} />
+                              <Route path="/cart" element={<CartScreen />} />
+                              <Route path="/checkout" element={<CheckoutScreen />} />
+                              <Route path="/profile" element={<ProfileScreen />} />
+                              <Route path="/orders" element={<OrdersScreen />} />
+                              <Route path="/edit-profile" element={<EditProfileScreen />} />
+                              <Route path="/address-book" element={<AddressBookScreen />} />
+                              <Route path="/track-order/:id" element={<OrderTrackingScreen />} />
+                              <Route path="/order-summary/:id" element={<OrderSummaryScreen />} />
+                              <Route path="/wallet" element={<WalletScreen />} />
+                              <Route path="/notifications" element={<NotificationsScreen />} />
+                              <Route path="/favorites" element={<FavoritesScreen />} />
+                              <Route path="/wishlist" element={<WishlistScreen />} />
+                              <Route path="/verification" element={<VerificationScreen />} />
+                              <Route path="/help-support" element={<HelpSupportScreen />} />
+                              <Route path="/about" element={<AboutScreen />} />
+                            </Route>
 
-                  {/* Franchise Module */}
-                  <Route path="/franchise">
-                    <Route index element={<Navigate to="login" replace />} />
-                    <Route path="login" element={<FranchiseLogin />} />
-                    <Route element={<FranchiseLayout />}>
-                      <Route path="dashboard" element={<FranchiseDashboard />} />
-                      <Route path="orders" element={<FranchiseOrders />} />
-                      <Route path="orders/:id" element={<OrderDetail />} />
-                      <Route path="takeaway" element={<FranchiseTakeaway />} />
-                      <Route path="inventory" element={<FranchiseInventory />} />
-                      <Route path="dispatch" element={<FranchiseDelivery />} />
-                      <Route path="profile" element={<FranchiseProfile />} />
-                    </Route>
-                  </Route>
+                            {/* Franchise Module */}
+                            <Route path="/franchise">
+                              <Route index element={<Navigate to="login" replace />} />
+                              <Route path="login" element={<FranchiseLogin />} />
+                              <Route element={<FranchiseLayout />}>
+                                <Route path="dashboard" element={<FranchiseDashboard />} />
+                                <Route path="orders" element={<FranchiseOrders />} />
+                                <Route path="orders/:id" element={<OrderDetail />} />
+                                <Route path="inventory" element={<FranchiseInventory />} />
+                                <Route path="receiving" element={<ReceivingScreen />} />
+                                <Route path="dispatch" element={<FranchiseDelivery />} />
+                                <Route path="cash" element={<CODCashScreen />} />
+                                <Route path="pos" element={<POSWeighingScreen />} />
+                                <Route path="procurement" element={<ProcurementScreen />} />
+                                <Route path="profile" element={<FranchiseProfile />} />
+                              </Route>
+                            </Route>
 
-                  {masterAdminRoutes}
-                  {vendorRoutes}
-                  {deliveryRoutes}
+                            {masterAdminRoutes}
+                            {vendorRoutes}
+                            {deliveryRoutes}
 
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </BrowserRouter>
-            </CartProvider>
-          </OrderProvider>
-        </WalletProvider>
-      </WishlistProvider>
+                            <Route path="*" element={<Navigate to="/" replace />} />
+                          </Routes>
+                        </Suspense>
+                      </BrowserRouter>
+                    </CartProvider>
+                  </OrderProvider>
+                </WalletProvider>
+              </WishlistProvider>
+            </FranchiseOrdersProvider>
+          </CODProvider>
+        </GRNProvider>
+      </InventoryProvider>
     </FranchiseAuthProvider>
   )
 }

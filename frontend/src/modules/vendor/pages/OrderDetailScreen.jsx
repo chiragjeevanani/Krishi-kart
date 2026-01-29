@@ -14,7 +14,10 @@ import {
     Calendar,
     Phone,
     Shield,
-    ClipboardList
+    ClipboardList,
+    XCircle,
+    ThumbsUp,
+    ThumbsDown
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import mockOrders from '../data/mockVendorOrders.json';
@@ -25,15 +28,27 @@ export default function OrderDetailScreen() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const [order, setOrder] = useState(null);
+    const [status, setStatus] = useState(null);
+    const [isActionLoading, setIsActionLoading] = useState(false);
 
     useEffect(() => {
         const timer = setTimeout(() => {
             const foundOrder = mockOrders.find(o => o.id === id);
             setOrder(foundOrder);
+            setStatus(foundOrder?.status);
             setIsLoading(false);
         }, 500);
         return () => clearTimeout(timer);
     }, [id]);
+
+    const handleAction = (newStatus, callback) => {
+        setIsActionLoading(true);
+        setTimeout(() => {
+            setStatus(newStatus);
+            setIsActionLoading(false);
+            if (callback) callback();
+        }, 1000);
+    };
 
     if (isLoading) return <div className="flex items-center justify-center h-96"><Loader2 className="animate-spin text-primary" /></div>;
     if (!order) return <div className="text-center p-20 font-black">Order Not Found</div>;
@@ -182,13 +197,56 @@ export default function OrderDetailScreen() {
 
             {/* Sticky Action Footer */}
             <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-xl border-t border-slate-100 lg:left-64 flex gap-4">
-                <button
-                    onClick={() => navigate(`/vendor/dispatch?order=${order.id}`)}
-                    className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-3 shadow-xl shadow-slate-200 active:scale-95 transition-all"
-                >
-                    Begin Packing Checklist
-                    <ChevronRight size={18} />
-                </button>
+                {status === 'new' && (
+                    <>
+                        <button
+                            onClick={() => handleAction('accepted')}
+                            disabled={isActionLoading}
+                            className="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-100 active:scale-95 transition-all disabled:opacity-50"
+                        >
+                            {isActionLoading ? <Loader2 className="animate-spin" size={18} /> : <><ThumbsUp size={18} /> Accept PO</>}
+                        </button>
+                        <button
+                            onClick={() => handleAction('rejected', () => navigate('/vendor/orders'))}
+                            disabled={isActionLoading}
+                            className="flex-1 bg-white border-2 border-red-100 text-red-500 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-50"
+                        >
+                            <ThumbsDown size={18} /> Reject PO
+                        </button>
+                    </>
+                )}
+
+                {status === 'accepted' && (
+                    <button
+                        onClick={() => handleAction('preparing', () => navigate(`/vendor/dispatch?order=${order.id}`))}
+                        disabled={isActionLoading}
+                        className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-3 shadow-xl shadow-slate-200 active:scale-95 transition-all disabled:opacity-50"
+                    >
+                        {isActionLoading ? <Loader2 className="animate-spin" size={18} /> : <>Start Packing Order <ChevronRight size={18} /></>}
+                    </button>
+                )}
+
+                {(status === 'preparing' || status === 'ready') && (
+                    <button
+                        onClick={() => navigate(`/vendor/dispatch?order=${order.id}`)}
+                        className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-3 shadow-xl shadow-slate-200 active:scale-95 transition-all"
+                    >
+                        Continue Packing Checklist
+                        <ChevronRight size={18} />
+                    </button>
+                )}
+
+                {status === 'completed' && (
+                    <div className="flex-1 bg-emerald-50 text-emerald-600 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2">
+                        <CheckCircle2 size={18} /> Order Dispatched Successfully
+                    </div>
+                )}
+
+                {status === 'rejected' && (
+                    <div className="flex-1 bg-red-50 text-red-600 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2">
+                        <XCircle size={18} /> Order Rejected
+                    </div>
+                )}
             </div>
         </div>
     );
