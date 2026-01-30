@@ -10,134 +10,299 @@ import {
     ArrowRight,
     ShoppingCart,
     ChevronDown,
-    Activity
+    Activity,
+    ChevronLeft,
+    Users,
+    MapPin,
+    ArrowUpRight
 } from 'lucide-react';
 import StockAlertBadge from '../components/badges/StockAlertBadge';
 import mockStock from '../data/mockFranchiseStock.json';
 import { cn } from '@/lib/utils';
 
 export default function FranchiseStockMonitoringScreen() {
+    const [viewMode, setViewMode] = useState('network'); // 'network' or 'detail'
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedFranchiseId, setSelectedFranchiseId] = useState(mockStock.franchises[0].franchiseId);
+    const [selectedFranchiseId, setSelectedFranchiseId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 800);
         return () => clearTimeout(timer);
-    }, [selectedFranchiseId]);
+    }, [selectedFranchiseId, viewMode]);
 
-    const activeFranchise = mockStock.franchises.find(f => f.franchiseId === selectedFranchiseId);
+    const handleFranchiseClick = (id) => {
+        setIsLoading(true);
+        setSelectedFranchiseId(id);
+        setViewMode('detail');
+    };
 
-    const filteredStock = activeFranchise.stock.filter(item =>
+    const activeFranchise = selectedFranchiseId
+        ? mockStock.franchises.find(f => f.franchiseId === selectedFranchiseId)
+        : null;
+
+    const filteredStock = activeFranchise?.stock.filter(item =>
         item.productName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    ) || [];
 
-    const metrics = {
+    // Global Stats
+    const globalStats = {
+        totalFranchises: mockStock.franchises.length,
+        criticalAlerts: mockStock.franchises.reduce((acc, f) =>
+            acc + f.stock.filter(s => s.alertStatus === 'critical').length, 0),
+        lowStockAlerts: mockStock.franchises.reduce((acc, f) =>
+            acc + f.stock.filter(s => s.alertStatus === 'low').length, 0),
+        healthyFranchises: mockStock.franchises.filter(f =>
+            f.stock.every(s => s.alertStatus === 'ok')).length
+    };
+
+    const activeFranchiseMetrics = activeFranchise ? {
         totalItems: activeFranchise.stock.length,
         lowStockItems: activeFranchise.stock.filter(s => s.alertStatus !== 'ok').length,
         criticalItems: activeFranchise.stock.filter(s => s.alertStatus === 'critical').length
-    };
+    } : null;
 
     return (
         <div className="space-y-8 pb-10">
             {/* Header Content */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">Stock Intelligence</h1>
-                    <p className="text-slate-500 font-medium">Real-time inventory levels across regional franchise hubs.</p>
+                    <div className="flex items-center gap-3 mb-2">
+                        {viewMode === 'detail' && (
+                            <button
+                                onClick={() => setViewMode('network')}
+                                className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary transition-all shadow-sm"
+                            >
+                                <ChevronLeft size={20} />
+                            </button>
+                        )}
+                        <h1 className="text-3xl font-black text-slate-900 tracking-tight italic uppercase">
+                            {viewMode === 'network' ? 'Network Intelligence' : activeFranchise?.franchiseName}
+                        </h1>
+                    </div>
+                    <p className="text-slate-500 font-medium ml-1">
+                        {viewMode === 'network'
+                            ? 'Real-time inventory health across all regional franchise hubs.'
+                            : `Detailed stock analysis for ${activeFranchise?.location} center.`}
+                    </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
-                    <div className="relative">
-                        <select
-                            value={selectedFranchiseId}
-                            onChange={(e) => {
-                                setIsLoading(true);
-                                setSelectedFranchiseId(e.target.value);
-                            }}
-                            className="appearance-none bg-white border border-slate-100 outline-none py-3.5 px-6 pr-12 rounded-2xl text-sm font-black text-slate-700 cursor-pointer shadow-sm hover:bg-slate-50 transition-all"
-                        >
-                            {mockStock.franchises.map(f => (
-                                <option key={f.franchiseId} value={f.franchiseId}>{f.franchiseName}</option>
-                            ))}
-                        </select>
-                        <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                    </div>
+                    {viewMode === 'detail' && (
+                        <div className="relative">
+                            <select
+                                value={selectedFranchiseId}
+                                onChange={(e) => {
+                                    setIsLoading(true);
+                                    setSelectedFranchiseId(e.target.value);
+                                }}
+                                className="appearance-none bg-white border border-slate-100 outline-none py-3.5 px-6 pr-12 rounded-2xl text-sm font-black text-slate-700 cursor-pointer shadow-sm hover:bg-slate-50 transition-all"
+                            >
+                                {mockStock.franchises.map(f => (
+                                    <option key={f.franchiseId} value={f.franchiseId}>{f.franchiseName}</option>
+                                ))}
+                            </select>
+                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                        </div>
+                    )}
+                    <button className="bg-white border border-slate-100 p-4 rounded-2xl text-slate-400 hover:text-primary transition-all shadow-sm">
+                        <Download size={18} />
+                    </button>
                 </div>
             </div>
 
-            {/* Quick Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm group">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
-                            <Package size={24} />
-                        </div>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">In Stock</span>
-                    </div>
-                    <div className="text-3xl font-black text-slate-900">{metrics.totalItems}</div>
-                    <p className="text-slate-400 text-xs mt-1 font-bold">Monitored SKU Items</p>
-                </div>
-
-                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm group">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500">
-                            <AlertTriangle size={24} />
-                        </div>
-                        <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Alerts</span>
-                    </div>
-                    <div className="text-3xl font-black text-slate-900">{metrics.lowStockItems}</div>
-                    <p className="text-slate-400 text-xs mt-1 font-bold">Items below MBQ threshold</p>
-                </div>
-
-                <div className="bg-red-600 p-8 rounded-[32px] text-white shadow-xl shadow-red-100 relative overflow-hidden">
-                    <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
-                                <Activity size={24} />
-                            </div>
-                            <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">Critical</span>
-                        </div>
-                        <div className="text-3xl font-black">{metrics.criticalItems}</div>
-                        <p className="text-white/60 text-xs mt-1 font-bold">Shut-off Risk Detectected</p>
-                    </div>
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-16 -mt-16" />
-                </div>
-            </div>
+            {/* Global Metrics for Network View */}
+            <AnimatePresence mode="wait">
+                {viewMode === 'network' ? (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="grid grid-cols-1 md:grid-cols-4 gap-6"
+                    >
+                        <MetricCard
+                            icon={Store}
+                            label="Total Hubs"
+                            value={globalStats.totalFranchises}
+                            sub="Active Franchises"
+                        />
+                        <MetricCard
+                            icon={AlertTriangle}
+                            label="Critical Stock"
+                            value={globalStats.criticalAlerts}
+                            sub="Action Required"
+                            variant="danger"
+                        />
+                        <MetricCard
+                            icon={Activity}
+                            label="Low Stock Alerts"
+                            value={globalStats.lowStockAlerts}
+                            sub="Refilling Required"
+                            variant="warning"
+                        />
+                        <MetricCard
+                            icon={Package}
+                            label="Network Health"
+                            value={`${Math.round((globalStats.healthyFranchises / globalStats.totalFranchises) * 100)}%`}
+                            sub="Fully Stocked Hubs"
+                            variant="success"
+                        />
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                    >
+                        <MetricCard
+                            icon={Package}
+                            label="Total SKUs"
+                            value={activeFranchiseMetrics.totalItems}
+                            sub="Monitored Items"
+                        />
+                        <MetricCard
+                            icon={AlertTriangle}
+                            label="Low Stock"
+                            value={activeFranchiseMetrics.lowStockItems}
+                            sub="Below Threshold"
+                            variant="warning"
+                        />
+                        <MetricCard
+                            icon={Activity}
+                            label="Critical Risk"
+                            value={activeFranchiseMetrics.criticalItems}
+                            sub="Immediate Action"
+                            variant="danger"
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Main Content Area */}
-            <div className="space-y-4">
-                <div className="bg-white p-4 rounded-[28px] border border-slate-100 shadow-sm flex flex-col md:flex-row items-center gap-4">
-                    <div className="relative flex-1 group w-full">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} />
-                        <input
-                            type="text"
-                            placeholder="Search inventory by item name..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-12 pr-4 outline-none text-sm font-medium placeholder:text-slate-400 focus:ring-2 focus:ring-primary/10 transition-all"
-                        />
+            <AnimatePresence mode="wait">
+                {isLoading ? (
+                    <div className="h-96 bg-white/50 border border-slate-100 rounded-[40px] flex items-center justify-center">
+                        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
                     </div>
-                    <div className="flex items-center gap-2 w-full md:w-auto">
-                        <button className="bg-slate-50 p-4 rounded-2xl text-slate-400 hover:text-primary transition-all">
-                            <Filter size={18} />
-                        </button>
-                        <button className="bg-primary text-white px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100 flex-1 md:flex-none">
-                            <ShoppingCart size={16} />
-                            Auto-Generate POs
-                        </button>
-                    </div>
-                </div>
+                ) : viewMode === 'network' ? (
+                    <motion.div
+                        key="network-grid"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+                    >
+                        {mockStock.franchises.map((franchise) => {
+                            const criticalCount = franchise.stock.filter(s => s.alertStatus === 'critical').length;
+                            const totalItems = franchise.stock.length;
+                            const healthyCount = franchise.stock.filter(s => s.alertStatus === 'ok').length;
+                            const healthScore = Math.round((healthyCount / totalItems) * 100);
 
-                <AnimatePresence mode="wait">
-                    {isLoading ? (
-                        <div className="h-96 bg-slate-50 rounded-[32px] animate-pulse" />
-                    ) : (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden"
-                        >
+                            return (
+                                <motion.div
+                                    key={franchise.franchiseId}
+                                    whileHover={{ y: -5 }}
+                                    onClick={() => handleFranchiseClick(franchise.franchiseId)}
+                                    className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all cursor-pointer group relative overflow-hidden"
+                                >
+                                    <div className="relative z-10">
+                                        <div className="flex items-start justify-between mb-6">
+                                            <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                                                <Store size={28} />
+                                            </div>
+                                            <div className={cn(
+                                                "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
+                                                criticalCount > 0 ? "bg-red-50 text-red-500" : "bg-emerald-50 text-emerald-500"
+                                            )}>
+                                                {criticalCount > 0 ? `${criticalCount} Critical` : 'Stable'}
+                                            </div>
+                                        </div>
+
+                                        <h3 className="text-xl font-black text-slate-900 tracking-tight group-hover:text-primary transition-colors">{franchise.franchiseName}</h3>
+
+                                        <div className="flex items-center gap-4 mt-2 text-slate-400">
+                                            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
+                                                <MapPin size={12} />
+                                                {franchise.location}
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
+                                                <Users size={12} />
+                                                {franchise.manager}
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-8">
+                                            <div className="flex justify-between items-end mb-2">
+                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stock Health</span>
+                                                <span className="text-sm font-black text-slate-900">{healthScore}%</span>
+                                            </div>
+                                            <div className="w-full h-2 bg-slate-50 rounded-full overflow-hidden">
+                                                <motion.div
+                                                    initial={{ width: 0 }}
+                                                    animate={{ width: `${healthScore}%` }}
+                                                    className={cn(
+                                                        "h-full rounded-full transition-all",
+                                                        healthScore > 80 ? "bg-emerald-500" : healthScore > 50 ? "bg-amber-500" : "bg-red-500"
+                                                    )}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-6 flex items-center justify-between pt-6 border-t border-slate-50">
+                                            <div className="flex gap-4">
+                                                <div>
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Alerts</p>
+                                                    <p className="font-black text-slate-900">{franchise.stock.filter(s => s.alertStatus !== 'ok').length}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">SKUs</p>
+                                                    <p className="font-black text-slate-900">{totalItems}</p>
+                                                </div>
+                                            </div>
+                                            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-primary group-hover:text-white transition-all">
+                                                <ArrowUpRight size={20} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/5 transition-all" />
+                                </motion.div>
+                            );
+                        })}
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        key="detail-view"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="space-y-4"
+                    >
+                        {/* Detail View Toolbar */}
+                        <div className="bg-white p-4 rounded-[28px] border border-slate-100 shadow-sm flex flex-col md:flex-row items-center gap-4">
+                            <div className="relative flex-1 group w-full">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} />
+                                <input
+                                    type="text"
+                                    placeholder="Search inventory in this hub..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-12 pr-4 outline-none text-sm font-medium placeholder:text-slate-400 focus:ring-2 focus:ring-primary/10 transition-all"
+                                />
+                            </div>
+                            <div className="flex items-center gap-2 w-full md:w-auto">
+                                <button className="bg-slate-50 p-4 rounded-2xl text-slate-400 hover:text-primary transition-all">
+                                    <Filter size={18} />
+                                </button>
+                                <button className="bg-primary text-white px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100 flex-1 md:flex-none">
+                                    <ShoppingCart size={16} />
+                                    Auto-Generate POs
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Inventory Table */}
+                        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
                                     <thead>
@@ -198,10 +363,50 @@ export default function FranchiseStockMonitoringScreen() {
                                     </tbody>
                                 </table>
                             </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
+
+function MetricCard({ icon: Icon, label, value, sub, variant = 'default' }) {
+    const variants = {
+        default: "bg-white text-slate-900",
+        danger: "bg-red-600 text-white shadow-xl shadow-red-100",
+        warning: "bg-amber-500 text-white shadow-xl shadow-amber-100",
+        success: "bg-emerald-600 text-white shadow-xl shadow-emerald-100"
+    };
+
+    return (
+        <div className={cn("p-8 rounded-[32px] border border-slate-100 shadow-sm transition-all group relative overflow-hidden", variants[variant])}>
+            <div className="relative z-10 text-inherit">
+                <div className="flex items-center justify-between mb-4">
+                    <div className={cn(
+                        "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
+                        variant === 'default' ? "bg-slate-50 text-slate-400 group-hover:bg-primary/10 group-hover:text-primary" : "bg-white/20 text-white"
+                    )}>
+                        <Icon size={24} />
+                    </div>
+                    <span className={cn(
+                        "text-[10px] font-black uppercase tracking-widest",
+                        variant === 'default' ? "text-slate-400" : "text-white/60"
+                    )}>
+                        {label}
+                    </span>
+                </div>
+                <div className="text-3xl font-black text-inherit">{value}</div>
+                <p className={cn(
+                    "text-xs mt-1 font-bold",
+                    variant === 'default' ? "text-slate-400" : "text-white/60"
+                )}>
+                    {sub}
+                </p>
             </div>
+            {variant !== 'default' && (
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16" />
+            )}
         </div>
     );
 }
