@@ -10,7 +10,8 @@ export default function ApprovalCard({ item, type, onApprove, onReject, onViewDo
     return (
         <motion.div
             whileHover={{ y: -5 }}
-            className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm transition-all hover:shadow-xl hover:shadow-slate-200/50"
+            onClick={() => onViewDoc(item)}
+            className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm transition-all hover:shadow-xl hover:shadow-slate-200/50 cursor-pointer group"
         >
             <div className="flex items-start justify-between mb-8">
                 <div className="flex items-center gap-4">

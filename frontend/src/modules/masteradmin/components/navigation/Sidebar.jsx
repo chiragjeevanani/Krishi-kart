@@ -23,7 +23,8 @@ import {
     BookOpen,
     Percent,
     ClipboardCheck,
-    Briefcase
+    Briefcase,
+    TrendingUp
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -54,6 +55,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
             group: 'Network & Supply', items: [
                 { icon: Store, label: 'Franchise Network', path: '/masteradmin/franchises' },
                 { icon: Users, label: 'Vendor Pool', path: '/masteradmin/vendors' },
+                { icon: TrendingUp, label: 'Vendor Economics', path: '/masteradmin/vendor-economics' },
                 { icon: Monitor, label: 'Stock Monitoring', path: '/masteradmin/stock-monitoring' },
                 { icon: Briefcase, label: 'Purchase Manager', path: '/masteradmin/purchase' },
             ]

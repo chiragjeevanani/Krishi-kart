@@ -14,10 +14,12 @@ import {
 } from 'lucide-react';
 import mockVendors from '../data/mockVendors.json';
 import { cn } from '@/lib/utils';
+import VendorOnboardingDrawer from '../components/drawers/VendorOnboardingDrawer';
 
 export default function VendorManagementScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [isOnboardOpen, setIsOnboardOpen] = useState(false);
 
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 500);
@@ -43,7 +45,10 @@ export default function VendorManagementScreen() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <button className="bg-primary text-white px-6 py-3 rounded-2xl font-black text-sm flex items-center gap-2 hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-50">
+                    <button
+                        onClick={() => setIsOnboardOpen(true)}
+                        className="bg-primary text-white px-6 py-3 rounded-2xl font-black text-sm flex items-center gap-2 hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-50"
+                    >
                         <Plus size={18} />
                         Onboard Vendor
                     </button>
@@ -183,6 +188,15 @@ export default function VendorManagementScreen() {
                     <p className="text-xs text-slate-400 mt-1 font-medium">Verify your query and try again.</p>
                 </div>
             )}
+
+            <VendorOnboardingDrawer
+                isOpen={isOnboardOpen}
+                onClose={() => setIsOnboardOpen(false)}
+                onSave={(data) => {
+                    console.log('Vendor Onboarded:', data);
+                    setIsOnboardOpen(false);
+                }}
+            />
         </div>
     );
 }

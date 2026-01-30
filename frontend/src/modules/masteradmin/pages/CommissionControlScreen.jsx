@@ -54,7 +54,7 @@ export default function CommissionControlScreen() {
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">Commission Strategy</h1>
-                    <p className="text-slate-500 font-medium">Define payout structures and preview P&L impacts.</p>
+                    <p className="text-slate-500 font-medium">Define payout structures based on purchase value and preview P&L impacts.</p>
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -87,7 +87,7 @@ export default function CommissionControlScreen() {
                             <h3 className="text-lg font-black tracking-tight">Strategy Impact</h3>
                         </div>
                         <p className="text-slate-400 text-sm font-medium leading-relaxed">
-                            Adjusting these rates directly affects your unit economics. Current strategy prioritizes company margin (95%) while maintaining competitive vendor payouts (3%).
+                            Adjusting these rates directly affects your unit economics. Current strategy calculates payouts as a percentage of the total purchase value.
                         </p>
                         <div className="mt-8 flex items-center gap-8">
                             <div>
@@ -108,7 +108,7 @@ export default function CommissionControlScreen() {
                     <div className="flex items-center justify-between mb-8">
                         <div>
                             <h3 className="text-xl font-bold text-slate-900 tracking-tight">Auto P&L Preview</h3>
-                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Based on ₹{preview.sampleOrderAmount.toLocaleString()} order</p>
+                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Based on ₹{preview.sampleOrderAmount.toLocaleString()} purchase value</p>
                         </div>
                         <PieIcon size={20} className="text-slate-300" />
                     </div>

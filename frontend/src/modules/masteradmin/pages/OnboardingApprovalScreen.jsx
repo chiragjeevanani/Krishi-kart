@@ -13,6 +13,7 @@ import {
     FileText
 } from 'lucide-react';
 import ApprovalCard from '../components/cards/ApprovalCard';
+import ApprovalDetailDrawer from '../components/drawers/ApprovalDetailDrawer';
 import mockApprovals from '../data/mockApprovals.json';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +21,7 @@ export default function OnboardingApprovalScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('vendor');
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedItem, setSelectedItem] = useState(null);
 
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 800);
@@ -134,9 +136,9 @@ export default function OnboardingApprovalScreen() {
                                 key={item.id}
                                 item={item}
                                 type={activeTab}
-                                onApprove={() => { }}
-                                onReject={() => { }}
-                                onViewDoc={() => { }}
+                                onApprove={() => setSelectedItem(item)}
+                                onReject={() => setSelectedItem(item)}
+                                onViewDoc={(item) => setSelectedItem(item)}
                             />
                         ))}
 
@@ -152,6 +154,21 @@ export default function OnboardingApprovalScreen() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <ApprovalDetailDrawer
+                isOpen={!!selectedItem}
+                onClose={() => setSelectedItem(null)}
+                item={selectedItem}
+                type={activeTab}
+                onApprove={(item) => {
+                    console.log('Approved:', item.id);
+                    setSelectedItem(null);
+                }}
+                onReject={(item) => {
+                    console.log('Rejected:', item.id);
+                    setSelectedItem(null);
+                }}
+            />
         </div>
     );
 }

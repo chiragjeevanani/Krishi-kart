@@ -18,6 +18,7 @@ import CommissionControlScreen from '../pages/CommissionControlScreen';
 import FranchiseStockMonitoringScreen from '../pages/FranchiseStockMonitoringScreen';
 import PurchaseManagerScreen from '../pages/PurchaseManagerScreen';
 import OnboardingApprovalScreen from '../pages/OnboardingApprovalScreen';
+import VendorTurnoverScreen from '../pages/VendorTurnoverScreen';
 
 export const masterAdminRoutes = (
     <Route path="/masteradmin" element={<MasterAdminLayout />}>
@@ -28,6 +29,7 @@ export const masterAdminRoutes = (
         <Route path="assignment" element={<VendorAssignmentScreen />} />
         <Route path="franchises" element={<FranchiseManagementScreen />} />
         <Route path="vendors" element={<VendorManagementScreen />} />
+        <Route path="vendor-economics" element={<VendorTurnoverScreen />} />
         <Route path="delivery" element={<DeliveryMonitoringScreen />} />
         <Route path="kiosk" element={<TakeawayMonitoringScreen />} />
         <Route path="analytics" element={<AnalyticsScreen />} />

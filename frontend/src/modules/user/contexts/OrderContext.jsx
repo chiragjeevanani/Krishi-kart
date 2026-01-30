@@ -38,8 +38,14 @@ export function OrderProvider({ children }) {
         return newOrder;
     };
 
+    const updateOrderStatus = (orderId, status) => {
+        setOrders(prev => prev.map(order =>
+            order.id === orderId ? { ...order, status } : order
+        ));
+    };
+
     return (
-        <OrderContext.Provider value={{ orders, placeOrder }}>
+        <OrderContext.Provider value={{ orders, placeOrder, updateOrderStatus }}>
             {children}
         </OrderContext.Provider>
     );

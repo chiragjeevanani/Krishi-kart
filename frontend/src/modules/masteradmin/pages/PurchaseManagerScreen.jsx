@@ -16,6 +16,7 @@ import {
     Store
 } from 'lucide-react';
 import POCreationDrawer from '../components/drawers/POCreationDrawer';
+import MultiVendorAssignmentDrawer from '../components/drawers/MultiVendorAssignmentDrawer';
 import StatusBadge from '../components/common/StatusBadge';
 import mockPOs from '../data/mockPurchaseOrders.json';
 import { cn } from '@/lib/utils';
@@ -24,6 +25,7 @@ export default function PurchaseManagerScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [selectedPOForAssignment, setSelectedPOForAssignment] = useState(null);
     const [activeFilter, setActiveFilter] = useState('all');
 
     useEffect(() => {
@@ -37,6 +39,15 @@ export default function PurchaseManagerScreen() {
         const matchesFilter = activeFilter === 'all' || po.status === activeFilter;
         return matchesSearch && matchesFilter;
     });
+
+    const handleFinalizeAssignment = (assignments) => {
+        console.log('Finalizing Procurement with assignments:', assignments);
+        // In a real app, this would update the PO status and trigger Vendor Notifications
+        setSelectedPOForAssignment(null);
+        // Force refresh or update state
+        setIsLoading(true);
+        setTimeout(() => setIsLoading(false), 800);
+    };
 
     if (isLoading) {
         return <div className="h-96 w-full bg-slate-50/50 animate-pulse rounded-[32px]" />;
@@ -166,8 +177,14 @@ export default function PurchaseManagerScreen() {
 
                             <div className="flex items-center gap-3">
                                 {po.status === 'pending_approval' ? (
-                                    <button className="bg-primary text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100">
-                                        Approve PO
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedPOForAssignment(po);
+                                        }}
+                                        className="bg-primary text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100"
+                                    >
+                                        Procure Items
                                     </button>
                                 ) : (
                                     <button className="bg-slate-50 text-slate-400 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-100 hover:text-slate-600 transition-all border border-slate-100">
@@ -187,6 +204,13 @@ export default function PurchaseManagerScreen() {
                 isOpen={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}
                 onSave={() => setIsDrawerOpen(false)}
+            />
+
+            <MultiVendorAssignmentDrawer
+                isOpen={!!selectedPOForAssignment}
+                onClose={() => setSelectedPOForAssignment(null)}
+                po={selectedPOForAssignment}
+                onFinalize={handleFinalizeAssignment}
             />
         </div>
     );

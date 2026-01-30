@@ -4,6 +4,8 @@ const WalletContext = createContext();
 
 export function WalletProvider({ children }) {
     const [balance, setBalance] = useState(5000); // Initial mock balance
+    const [creditLimit, setCreditLimit] = useState(50000); // Business Credit Limit
+    const [creditUsed, setCreditUsed] = useState(12500); // Current credit used
     const [transactions, setTransactions] = useState([
         { id: 'TXN-101', type: 'Added', amount: 5000, date: 'Jan 15, 2026', status: 'Success' },
     ]);
@@ -39,7 +41,7 @@ export function WalletProvider({ children }) {
     };
 
     return (
-        <WalletContext.Provider value={{ balance, transactions, addMoney, payWithWallet }}>
+        <WalletContext.Provider value={{ balance, transactions, addMoney, payWithWallet, creditLimit, creditUsed }}>
             {children}
         </WalletContext.Provider>
     );

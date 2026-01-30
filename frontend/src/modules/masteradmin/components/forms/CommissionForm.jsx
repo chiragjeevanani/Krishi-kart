@@ -40,7 +40,7 @@ export default function CommissionForm({ initialRate, label, onSave }) {
 
                     <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 bg-slate-50/50 p-3 rounded-xl border border-dotted border-slate-200">
                         <Info size={12} className="shrink-0" />
-                        <span>Commission is calculated on gross order value before taxes.</span>
+                        <span>Commission is calculated on total purchase value before taxes.</span>
                     </div>
 
                     <button
