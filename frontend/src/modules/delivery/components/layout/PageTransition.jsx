@@ -6,13 +6,13 @@ const PageTransition = ({ children }) => {
     const location = useLocation();
 
     return (
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
             <motion.div
                 key={location.pathname}
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.15 }}
                 className="w-full h-full"
             >
                 {children}

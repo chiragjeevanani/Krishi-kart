@@ -90,7 +90,7 @@ export default function InventoryScreen() {
                     <div className="bg-white rounded-[28px] p-5 border border-slate-100 shadow-sm relative overflow-hidden">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Health Score</p>
                         <h3 className="text-2xl font-black text-slate-900 tracking-tight">
-                            <AnimatedCounter value={Math.round((stats.healthyCount / stats.totalItems) * 100)} suffix="%" />
+                            <AnimatedCounter value={stats.totalItems > 0 ? Math.round((stats.healthyCount / stats.totalItems) * 100) : 0} suffix="%" />
                         </h3>
                         <div className="w-full bg-slate-50 h-1.5 rounded-full mt-3 overflow-hidden">
                             <motion.div

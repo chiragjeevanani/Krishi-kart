@@ -44,8 +44,21 @@ export default function ProcurementScreen() {
         });
     };
 
+    const setManualQty = (productId, value) => {
+        const qty = parseInt(value);
+        if (isNaN(qty) || qty <= 0) {
+            setCart(prev => {
+                const { [productId]: removed, ...rest } = prev;
+                return rest;
+            });
+        } else {
+            setCart(prev => ({ ...prev, [productId]: qty }));
+        }
+    };
+
     const cartItems = Object.entries(cart).map(([id, qty]) => {
         const product = products.find(p => p.id === id);
+        if (!product) return { id, name: 'Unknown Product', price: 0, qty, image: '' };
         return { ...product, qty };
     });
 
@@ -163,11 +176,16 @@ export default function ProcurementScreen() {
                                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">/ {p.unit}</span>
                                             </div>
                                             {cart[p.id] ? (
-                                                <div className="flex items-center gap-3 bg-slate-900 text-white rounded-xl px-2 py-1.5">
+                                                <div className="flex items-center gap-3 bg-slate-900 text-white rounded-xl px-2 py-1.5 focus-within:ring-2 focus-within:ring-primary/50 transition-all">
                                                     <button onClick={() => updateQty(p.id, -1)} className="w-6 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center transition-colors">
                                                         <Minus size={14} />
                                                     </button>
-                                                    <span className="text-xs font-black w-4 text-center">{cart[p.id]}</span>
+                                                    <input
+                                                        type="number"
+                                                        className="bg-transparent border-none w-8 text-center font-black text-xs outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                        value={cart[p.id]}
+                                                        onChange={(e) => setManualQty(p.id, e.target.value)}
+                                                    />
                                                     <button onClick={() => updateQty(p.id, 1)} className="w-6 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center transition-colors">
                                                         <Plus size={14} />
                                                     </button>
@@ -225,7 +243,12 @@ export default function ProcurementScreen() {
                                                 <button onClick={() => updateQty(item.id, -1)} className="w-6 h-6 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors">
                                                     <Minus size={10} />
                                                 </button>
-                                                <span className="text-[10px] font-black text-slate-900">{item.qty}</span>
+                                                <input
+                                                    type="number"
+                                                    className="bg-transparent border-none w-8 text-center font-black text-[10px] text-slate-900 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    value={item.qty}
+                                                    onChange={(e) => setManualQty(item.id, e.target.value)}
+                                                />
                                                 <button onClick={() => updateQty(item.id, 1)} className="w-6 h-6 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary transition-colors">
                                                     <Plus size={10} />
                                                 </button>

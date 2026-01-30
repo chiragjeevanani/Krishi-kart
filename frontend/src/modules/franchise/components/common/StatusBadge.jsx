@@ -26,8 +26,8 @@ export default function StatusBadge({ status, variant = 'default' }) {
         deposited: { label: 'Deposited', bg: 'bg-emerald-50', text: 'text-emerald-600' }
     };
 
-    const normalizedStatus = (status || 'pending').toLowerCase();
-    const config = configs[normalizedStatus] || configs.pending;
+    const normalizedStatus = (status || 'new').toLowerCase();
+    const config = configs[normalizedStatus] || configs.new;
 
     return (
         <span className={cn(
