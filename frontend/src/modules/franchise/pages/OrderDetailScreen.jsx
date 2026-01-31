@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -11,18 +12,47 @@ import {
     ArrowRightCircle,
     Copy,
     Share2,
-    Truck
+    Truck,
+    FileText,
+    Shield
 } from 'lucide-react';
 import { useFranchiseOrders } from '../contexts/FranchiseOrdersContext';
 import StatusBadge from '../components/common/StatusBadge';
 import { cn } from '@/lib/utils';
+import { useOrders } from '@/modules/user/contexts/OrderContext';
+import DocumentViewer from '../../vendor/components/documents/DocumentViewer';
 
 export default function OrderDetailScreen() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { orders } = useFranchiseOrders();
+    const { orders: localOrders, updateOrderStatus: updateLocalStatus } = useFranchiseOrders();
+    const { orders: liveOrders, updateOrderStatus: updateLiveStatus } = useOrders();
+    const [isDocOpen, setIsDocOpen] = useState(false);
+    const [docType, setDocType] = useState('GRN');
 
-    const order = orders.find(o => o.id === id);
+    // Find in local context first, then live context
+    let order = localOrders.find(o => o.id === id);
+    if (!order) {
+        const liveOrder = liveOrders.find(o => o.id === id);
+        if (liveOrder) {
+            order = {
+                id: liveOrder.id,
+                customer: liveOrder.customer || 'Unknown Customer',
+                address: liveOrder.address || 'Standard Delivery Zone',
+                total: liveOrder.total,
+                status: liveOrder.status === 'processing' ? 'incoming' : liveOrder.status,
+                items: liveOrder.items.map(i => ({
+                    name: i.name,
+                    quantity: i.quantity || parseInt(i.qty) || 1,
+                    price: i.price || 0
+                })),
+                deliveryChallan: liveOrder.deliveryChallan,
+                grn: liveOrder.grn,
+                type: 'direct',
+                timeline: liveOrder.timeline || []
+            };
+        }
+    }
 
     if (!order) {
         return <div className="p-10 text-center">Order not found</div>;
@@ -79,6 +109,47 @@ export default function OrderDetailScreen() {
                         <p className="text-xs font-bold text-slate-600 leading-relaxed">{order.address}</p>
                     </div>
                 </div>
+
+                {/* Supply Chain Documents */}
+                {(order.deliveryChallan || order.grn) && (
+                    <div className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm space-y-4">
+                        <h2 className="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                            <FileText size={16} className="text-primary" /> Supply Chain Documents
+                        </h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {order.deliveryChallan && (
+                                <button
+                                    onClick={() => { setDocType('DC'); setIsDocOpen(true); }}
+                                    className="flex items-center justify-between p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50 hover:bg-indigo-50 transition-all text-left"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <Truck className="text-indigo-600" size={18} />
+                                        <div>
+                                            <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest leading-none mb-1">Delivery Challan</p>
+                                            <p className="text-[9px] font-bold text-slate-400">{order.deliveryChallan.id}</p>
+                                        </div>
+                                    </div>
+                                    <ChevronLeft className="text-indigo-300 rotate-180" size={14} />
+                                </button>
+                            )}
+                            {order.grn && (
+                                <button
+                                    onClick={() => { setDocType('GRN'); setIsDocOpen(true); }}
+                                    className="flex items-center justify-between p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/50 hover:bg-emerald-50 transition-all text-left"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <Shield size={18} className="text-emerald-600" />
+                                        <div>
+                                            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none mb-1">Audit Receipt (GRN)</p>
+                                            <p className="text-[9px] font-bold text-slate-400">{order.grn.id}</p>
+                                        </div>
+                                    </div>
+                                    <ChevronLeft className="text-emerald-300 rotate-180" size={14} />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* Items List */}
                 <div className="bg-white rounded-[32px] overflow-hidden border border-slate-100 shadow-sm">
@@ -143,6 +214,14 @@ export default function OrderDetailScreen() {
                     Update Progress <ArrowRightCircle size={18} />
                 </button>
             </div>
+
+            {/* Document Viewer Overlay */}
+            <DocumentViewer
+                isOpen={isDocOpen}
+                onClose={() => setIsDocOpen(false)}
+                type={docType}
+                data={docType === 'DC' ? order.deliveryChallan : order.grn}
+            />
         </div>
     );
 }

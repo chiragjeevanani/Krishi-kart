@@ -9,7 +9,8 @@ import {
     Zap,
     Wallet,
     AlertTriangle,
-    ArrowUpRight
+    ArrowUpRight,
+    Clock
 } from 'lucide-react';
 import { useFranchiseOrders } from '../contexts/FranchiseOrdersContext';
 import { useInventory } from '../contexts/InventoryContext';
@@ -73,6 +74,19 @@ export default function DashboardScreen() {
                         suffix={inventoryStats.lowStockCount > 10 ? '+' : ''}
                     />
                     <MetricCard
+                        title="Monthly Commission"
+                        value="24,500"
+                        icon={TrendingUp}
+                        color="emerald"
+                        prefix="₹"
+                    />
+                    <MetricCard
+                        title="Next Settlement"
+                        value="Feb 05"
+                        icon={Clock}
+                        color="blue"
+                    />
+                    <MetricCard
                         title="COD to Deposit"
                         value={codSummary.pendingDeposit}
                         icon={Wallet}
@@ -86,11 +100,17 @@ export default function DashboardScreen() {
                         color="purple"
                     />
                     <MetricCard
-                        title="Total Revenue"
-                        value={stats.revenue}
-                        icon={TrendingUp}
+                        title="Stock Health"
+                        value={inventoryStats.healthyCount}
+                        icon={Zap}
                         color="emerald"
-                        prefix="₹"
+                    />
+                    <MetricCard
+                        title="Low Stock"
+                        value={inventoryStats.lowStockCount}
+                        icon={AlertTriangle}
+                        color="red"
+                        suffix={inventoryStats.lowStockCount > 10 ? '+' : ''}
                     />
                 </div>
 

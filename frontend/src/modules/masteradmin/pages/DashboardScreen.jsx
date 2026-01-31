@@ -30,10 +30,32 @@ import MetricCard from '../components/cards/MetricCard';
 import ChartCard from '../components/cards/ChartCard';
 import mockData from '../data/mockDashboard.json';
 import { useState, useEffect } from 'react';
+import { useOrders } from '@/modules/user/contexts/OrderContext';
 
 export default function DashboardScreen() {
     const [isLoading, setIsLoading] = useState(true);
-    const { metrics, orderFlow, revenueFlow } = mockData;
+    const { orders: contextOrders } = useOrders();
+
+    // Live Dynamic Metrics
+    const liveRevenue = contextOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+    const liveVendorPayable = contextOrders
+        .filter(o => o.fulfillmentType === 'requires_procurement')
+        .reduce((sum, o) => sum + (o.procurementTotal || 0), 0);
+
+    const { metrics: mockMetrics, orderFlow, revenueFlow } = mockData;
+
+    // Merge live data into metrics
+    const metrics = {
+        ...mockMetrics,
+        revenueSummary: {
+            ...mockMetrics.revenueSummary,
+            value: (liveRevenue + 4250000).toLocaleString() // Merge mock + live
+        },
+        vendorPayable: {
+            ...mockMetrics.vendorPayable,
+            value: (liveVendorPayable + 840000).toLocaleString()
+        }
+    };
 
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 800);
@@ -103,6 +125,76 @@ export default function DashboardScreen() {
                         icon={iconMap[key]}
                     />
                 ))}
+            </div>
+
+            {/* Settlement Cycle Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div className="lg:col-span-3 bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden group">
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 className="text-xl font-black text-slate-900 tracking-tight">Settlement Pipeline</h3>
+                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Monthly Financial Cycle</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black rounded-full uppercase tracking-widest">In Progress</span>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center">
+                                    <Users size={20} />
+                                </div>
+                                <span className="text-xs font-black text-slate-900 uppercase">Vendor Payouts</span>
+                            </div>
+                            <div className="pl-13">
+                                <div className="text-2xl font-black text-slate-900">₹{((liveVendorPayable + 840000) / 100000).toFixed(1)}L</div>
+                                <p className="text-[10px] text-slate-400 font-bold mt-1">Payable per PO (Goods Value)</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4 border-l border-slate-50 pl-8">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center">
+                                    <Building2 size={20} />
+                                </div>
+                                <span className="text-xs font-black text-slate-900 uppercase">Franchise Comm.</span>
+                            </div>
+                            <div className="pl-13">
+                                <div className="text-2xl font-black text-slate-900">₹2.1L</div>
+                                <p className="text-[10px] text-slate-400 font-bold mt-1">Monthly Settlement (Feb 5)</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4 border-l border-slate-50 pl-8">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center shadow-lg shadow-slate-200">
+                                    <Clock size={20} />
+                                </div>
+                                <span className="text-xs font-black text-slate-900 uppercase">Next Cycle</span>
+                            </div>
+                            <div className="pl-13">
+                                <div className="text-2xl font-black text-slate-900 italic">4 Days</div>
+                                <p className="text-[10px] text-slate-400 font-bold mt-1">Auto-Settlement Trigger</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-primary p-8 rounded-[32px] text-white shadow-xl shadow-emerald-50 flex flex-col justify-between group">
+                    <div>
+                        <Banknote size={32} className="mb-6 group-hover:scale-110 transition-transform" />
+                        <h4 className="text-lg font-black tracking-tight leading-none uppercase italic">Cash Liquidity</h4>
+                        <p className="text-xs text-white/60 font-medium mt-2">Franchise Deposits Pending</p>
+                    </div>
+                    <div>
+                        <div className="text-3xl font-black italic">₹12.5L</div>
+                        <button className="w-full mt-6 bg-white/10 hover:bg-white/20 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                            View Deposits
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {/* Charts Section */}

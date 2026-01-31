@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, MapPin, Receipt, Star, RotateCcw, ChevronRight, CheckCircle2 } from 'lucide-react'
 import PageTransition from '../components/layout/PageTransition'
 import { Button } from '@/components/ui/button'
-import { useOrders } from '../contexts/OrderContext'
+import { useOrders } from '@/modules/user/contexts/OrderContext'
 
 export default function OrderSummaryScreen() {
     const navigate = useNavigate()

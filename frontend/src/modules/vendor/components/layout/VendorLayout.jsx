@@ -56,9 +56,11 @@ export default function VendorLayout() {
             </div>
 
             {/* Mobile Bottom Navigation */}
-            <div className="lg:hidden fixed bottom-6 left-6 right-6 z-50">
-                <BottomNav />
-            </div>
+            {!location.pathname.includes('/orders/') && !location.pathname.includes('/dispatch') && (
+                <div className="lg:hidden fixed bottom-6 left-6 right-6 z-50">
+                    <BottomNav />
+                </div>
+            )}
         </div>
     );
 }

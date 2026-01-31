@@ -103,15 +103,20 @@ export default function MultiVendorAssignmentDrawer({ isOpen, onClose, po, onFin
                                 >
                                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 shadow-inner">
+                                            <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 shadow-inner group-hover:bg-primary/5 group-hover:text-primary transition-colors">
                                                 <ShoppingBag size={24} />
                                             </div>
                                             <div>
-                                                <h5 className="font-extrabold text-slate-900 text-lg tracking-tight">{item.productName}</h5>
-                                                <div className="flex items-center gap-3 mt-1">
-                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Need: {item.orderQty} {item.unit}</span>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <h5 className="font-extrabold text-slate-900 text-lg tracking-tight">{item.productName}</h5>
+                                                    <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded-full text-[8px] font-black uppercase tracking-widest whitespace-nowrap">
+                                                        Procurement Needed
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Deficit: {item.orderQty} {item.unit}</span>
                                                     <div className="w-1 h-1 bg-slate-200 rounded-full" />
-                                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">₹{item.pricePerUnit}/{item.unit}</span>
+                                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">Rate: ₹{item.pricePerUnit}/{item.unit}</span>
                                                 </div>
                                             </div>
                                         </div>

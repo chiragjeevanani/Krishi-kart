@@ -1,32 +1,42 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Package, CheckCircle2, Clock, Truck, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Package, CheckCircle2, Clock, Truck, ChevronRight, Zap } from 'lucide-react'
 import PageTransition from '../components/layout/PageTransition'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { useOrders } from '../contexts/OrderContext'
+import { useOrders } from '@/modules/user/contexts/OrderContext'
 
 export default function OrdersScreen() {
     const navigate = useNavigate()
     const { orders } = useOrders()
 
     const getStatusColor = (status) => {
-        switch (status) {
-            case 'Delivered': return 'bg-green-50 text-green-600 border-green-100'
-            case 'In Transit': return 'bg-blue-50 text-blue-600 border-blue-100'
-            case 'Processing': return 'bg-amber-50 text-amber-600 border-amber-100'
-            case 'Shipped': return 'bg-purple-50 text-purple-600 border-purple-100'
+        const s = (status || '').toLowerCase();
+        switch (s) {
+            case 'delivered': return 'bg-green-50 text-green-600 border-green-100'
+            case 'in transit':
+            case 'out_for_delivery': return 'bg-blue-50 text-blue-600 border-blue-100'
+            case 'new':
+            case 'processing': return 'bg-amber-50 text-amber-600 border-amber-100'
+            case 'preparing': return 'bg-orange-50 text-orange-600 border-orange-100'
+            case 'ready': return 'bg-indigo-50 text-indigo-600 border-indigo-100'
+            case 'shipped': return 'bg-purple-50 text-purple-600 border-purple-100'
             default: return 'bg-slate-50 text-slate-600 border-slate-100'
         }
     }
 
     const getStatusIcon = (status) => {
-        switch (status) {
-            case 'Delivered': return <CheckCircle2 size={12} />
-            case 'In Transit': return <Truck size={12} />
-            case 'Processing': return <Clock size={12} />
-            case 'Shipped': return <Package size={12} />
+        const s = (status || '').toLowerCase();
+        switch (s) {
+            case 'delivered': return <CheckCircle2 size={12} />
+            case 'in transit':
+            case 'out_for_delivery': return <Truck size={12} />
+            case 'new':
+            case 'processing': return <Clock size={12} />
+            case 'preparing': return <Zap size={12} className="fill-current" />
+            case 'ready': return <Package size={12} />
+            case 'shipped': return <Package size={12} />
             default: return null
         }
     }

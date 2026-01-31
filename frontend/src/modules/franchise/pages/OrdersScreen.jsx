@@ -13,11 +13,60 @@ import {
 import { useFranchiseOrders } from '../contexts/FranchiseOrdersContext';
 import OrderCard from '../components/cards/OrderCard';
 import { cn } from '@/lib/utils';
+import { useInventory } from '../contexts/InventoryContext';
+
+const tabs = [
+    { id: 'new', label: 'Incoming', icon: ShoppingBag },
+    { id: 'preparing', label: 'Preparing', icon: Clock },
+    { id: 'out_for_delivery', label: 'Dispatch', icon: Truck },
+    { id: 'delivered', label: 'Delivered', icon: CheckCircle2 }
+];
 
 export default function OrdersScreen() {
-    const { orders, updateOrderStatus } = useFranchiseOrders();
-    const [activeTab, setActiveTab] = useState('new'); // new, preparing, dispatch, delivered
+    const { orders: allOrders, updateOrderStatus } = useFranchiseOrders();
+    const { inventory, deductStock } = useInventory();
+    const [activeTab, setActiveTab] = useState('new');
     const [searchQuery, setSearchQuery] = useState('');
+
+    const handleAction = (orderId, newStatus) => {
+        const order = allOrders.find(o => o.id === orderId);
+        if (!order) return;
+
+        // Stock Validation Logic
+        if (newStatus === 'preparing' || newStatus === 'out_for_delivery') {
+            const itemsToValidate = order.items.map(i => ({
+                id: i.id || i.productId,
+                qty: i.quantity || i.qty,
+                name: i.name
+            }));
+
+            // Check if stock exists
+            const insufficient = itemsToValidate.filter(i => {
+                const stockItem = inventory.find(s => s.id === i.id);
+                return !stockItem || stockItem.currentStock < i.qty;
+            });
+
+            if (insufficient.length > 0) {
+                alert(`Cannot proceed! Insufficient stock for: ${insufficient.map(i => i.name).join(', ')}`);
+                return;
+            }
+        }
+
+        // Stock Deduction Logic (Deduct on Dispatch)
+        if (newStatus === 'out_for_delivery') {
+            deductStock(order.items.map(i => ({
+                id: i.id || i.productId,
+                qty: i.quantity || i.qty
+            })));
+        }
+
+        const isLiveOrder = userLiveOrders.some(o => o.id === orderId);
+        if (isLiveOrder) {
+            updateLiveOrder(orderId, newStatus);
+        } else {
+            updateOrderStatus(orderId, newStatus);
+        }
+    };
 
     const tabs = [
         { id: 'new', label: 'New', icon: ShoppingBag },
@@ -26,15 +75,17 @@ export default function OrdersScreen() {
         { id: 'delivered', label: 'History', icon: History }
     ];
 
-    const filteredOrders = orders.filter(order => {
+    const filteredOrders = allOrders.filter(order => {
         let matchesTab = false;
-        if (activeTab === 'new') matchesTab = order.status === 'new';
-        else if (activeTab === 'preparing') matchesTab = order.status === 'preparing';
-        else if (activeTab === 'ready') matchesTab = order.status === 'ready' || order.status === 'out_for_delivery';
-        else if (activeTab === 'delivered') matchesTab = order.status === 'delivered';
+        const status = order.status.toLowerCase();
+        if (activeTab === 'new') matchesTab = status === 'new' || status === 'processing';
+        else if (activeTab === 'preparing') matchesTab = status === 'preparing';
+        else if (activeTab === 'ready') matchesTab = status === 'ready' || status === 'out_for_delivery';
+        else if (activeTab === 'delivered') matchesTab = status === 'delivered';
 
+        const hotelName = order.hotelName || 'Unknown';
         const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.hotelName.toLowerCase().includes(searchQuery.toLowerCase());
+            hotelName.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesTab && matchesSearch;
     });
 
@@ -97,7 +148,7 @@ export default function OrdersScreen() {
                                 <OrderCard
                                     key={order.id}
                                     order={order}
-                                    onAction={updateOrderStatus}
+                                    onAction={handleAction}
                                 />
                             ))
                         ) : (

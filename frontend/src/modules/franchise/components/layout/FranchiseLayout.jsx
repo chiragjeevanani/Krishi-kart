@@ -12,12 +12,12 @@ export default function FranchiseLayout() {
     const hideNav = location.pathname.includes('/login');
 
     return (
-        <div className="flex min-h-screen bg-[#f8fafd] text-slate-900 font-sans selection:bg-emerald-100">
+        <div className="fixed inset-0 flex overflow-hidden bg-[#f8fafd] text-slate-900 font-sans selection:bg-emerald-100">
             {/* Desktop Sidebar */}
             {!hideNav && <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />}
 
-            <main className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${!hideNav ? (isCollapsed ? 'lg:ml-20' : 'lg:ml-64') : ''}`}>
-                <div className="flex-1 overflow-x-hidden">
+            <main className={`flex-1 flex flex-col min-w-0 h-full relative transition-all duration-300 ${!hideNav ? (isCollapsed ? 'lg:ml-20' : 'lg:ml-64') : ''}`}>
+                <div className="flex-1 overflow-y-auto overflow-x-hidden scrolling-touch overscroll-contain touch-pan-y">
                     <AnimatePresence mode="wait" initial={false}>
                         <motion.div
                             key={location.pathname}

@@ -50,20 +50,20 @@ import { vendorRoutes } from './modules/vendor/routes/vendorRoutes';
 import { deliveryRoutes } from './modules/delivery/routes/deliveryRoutes';
 
 import { CartProvider } from './modules/user/contexts/CartContext'
-import { OrderProvider } from './modules/user/contexts/OrderContext'
+import { OrderProvider } from '@/modules/user/contexts/OrderContext'
 import { WalletProvider } from './modules/user/contexts/WalletContext'
 
 function App() {
   return (
-    <FranchiseAuthProvider>
-      <InventoryProvider>
-        <GRNProvider>
-          <CODProvider>
-            <FranchiseOrdersProvider>
-              <WishlistProvider>
-                <WalletProvider>
-                  <OrderProvider>
-                    <CartProvider>
+    <OrderProvider>
+      <CartProvider>
+        <FranchiseAuthProvider>
+          <InventoryProvider>
+            <GRNProvider>
+              <CODProvider>
+                <FranchiseOrdersProvider>
+                  <WishlistProvider>
+                    <WalletProvider>
                       <BrowserRouter>
                         <Suspense fallback={
                           <div className="h-screen w-full flex items-center justify-center bg-slate-50">
@@ -122,15 +122,15 @@ function App() {
                           </Routes>
                         </Suspense>
                       </BrowserRouter>
-                    </CartProvider>
-                  </OrderProvider>
-                </WalletProvider>
-              </WishlistProvider>
-            </FranchiseOrdersProvider>
-          </CODProvider>
-        </GRNProvider>
-      </InventoryProvider>
-    </FranchiseAuthProvider>
+                    </WalletProvider>
+                  </WishlistProvider>
+                </FranchiseOrdersProvider>
+              </CODProvider>
+            </GRNProvider>
+          </InventoryProvider>
+        </FranchiseAuthProvider>
+      </CartProvider>
+    </OrderProvider>
   )
 }
 

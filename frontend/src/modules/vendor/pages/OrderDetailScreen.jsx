@@ -17,11 +17,14 @@ import {
     ClipboardList,
     XCircle,
     ThumbsUp,
-    ThumbsDown
+    ThumbsDown,
+    FileText
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import mockOrders from '../data/mockVendorOrders.json';
 import { cn } from '@/lib/utils';
+import { useOrders } from '@/modules/user/contexts/OrderContext';
+import DocumentViewer from '../components/documents/DocumentViewer';
 
 export default function OrderDetailScreen() {
     const { id } = useParams();
@@ -30,20 +33,49 @@ export default function OrderDetailScreen() {
     const [order, setOrder] = useState(null);
     const [status, setStatus] = useState(null);
     const [isActionLoading, setIsActionLoading] = useState(false);
+    const [isDocOpen, setIsDocOpen] = useState(false);
+    const [docType, setDocType] = useState('DC');
+    const { orders: contextOrders, updateOrderStatus } = useOrders();
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            const foundOrder = mockOrders.find(o => o.id === id);
+            // Find in mock data first
+            let foundOrder = mockOrders.find(o => o.id === id);
+
+            // If not found in mock, check live orders
+            if (!foundOrder) {
+                const liveOrder = contextOrders.find(o => o.id === id);
+                if (liveOrder) {
+                    foundOrder = {
+                        id: liveOrder.id,
+                        franchiseName: liveOrder.franchise || 'Main Center',
+                        total: liveOrder.procurementTotal || liveOrder.total,
+                        procurementTotal: liveOrder.procurementTotal,
+                        status: liveOrder.status,
+                        items: liveOrder.items,
+                        deliveryChallan: liveOrder.deliveryChallan,
+                        grn: liveOrder.grn,
+                        priority: 'normal',
+                        deadline: new Date(Date.now() + 3600000).toISOString()
+                    };
+                }
+            }
+
             setOrder(foundOrder);
-            setStatus(foundOrder?.status);
+            setStatus(foundOrder?.status?.toLowerCase()); // Normalize to lowercase
             setIsLoading(false);
         }, 500);
         return () => clearTimeout(timer);
-    }, [id]);
+    }, [id, contextOrders]);
 
     const handleAction = (newStatus, callback) => {
         setIsActionLoading(true);
         setTimeout(() => {
+            // Update live order if it exists
+            if (contextOrders.find(o => o.id === id)) {
+                updateOrderStatus(id, newStatus);
+            }
+
             setStatus(newStatus);
             setIsActionLoading(false);
             if (callback) callback();
@@ -60,7 +92,13 @@ export default function OrderDetailScreen() {
         { id: 'completed', label: 'Dispatched', icon: Truck }
     ];
 
-    const currentStepIndex = steps.findIndex(s => s.id === (order.status === 'completed' ? 'completed' : order.status));
+    // Helper to map assigned/new to the first step
+    const getActiveStepId = (s) => {
+        if (s === 'assigned' || s === 'new' || s === 'accepted') return 'new';
+        return s;
+    };
+
+    const currentStepIndex = steps.findIndex(s => s.id === getActiveStepId(order.status === 'completed' ? 'completed' : order.status));
 
     return (
         <div className="space-y-6 pb-32">
@@ -115,6 +153,48 @@ export default function OrderDetailScreen() {
                     })}
                 </div>
             </div>
+
+            {/* Document Log */}
+            {(order.deliveryChallan || order.grn) && (
+                <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm space-y-4">
+                    <h3 className="font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <FileText size={20} className="text-primary" />
+                        Consignment Documents
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {order.deliveryChallan && (
+                            <button
+                                onClick={() => { setDocType('DC'); setIsDocOpen(true); }}
+                                className="flex items-center justify-between p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50 hover:bg-indigo-50 transition-all"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <FileText className="text-indigo-600" size={18} />
+                                    <div className="text-left">
+                                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Delivery Challan</p>
+                                        <p className="text-[9px] font-bold text-slate-400">{order.deliveryChallan.id}</p>
+                                    </div>
+                                </div>
+                                <ChevronRight className="text-indigo-300" size={14} />
+                            </button>
+                        )}
+                        {order.grn && (
+                            <button
+                                onClick={() => { setDocType('GRN'); setIsDocOpen(true); }}
+                                className="flex items-center justify-between p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/50 hover:bg-emerald-50 transition-all"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <Shield size={18} className="text-emerald-600" />
+                                    <div className="text-left">
+                                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Audit Receipt (GRN)</p>
+                                        <p className="text-[9px] font-bold text-slate-400">{order.grn.id}</p>
+                                    </div>
+                                </div>
+                                <ChevronRight className="text-emerald-300" size={14} />
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Items Checklist */}
@@ -182,22 +262,24 @@ export default function OrderDetailScreen() {
 
                     <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex items-center justify-between">
                         <div>
-                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none mb-1">Settlement</p>
+                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none mb-1">Procurement Value</p>
                             <div className="flex items-center gap-2">
                                 <IndianRupee size={16} className="text-slate-900" />
-                                <span className="text-2xl font-black text-slate-900 tracking-tight">{order.total}</span>
+                                <span className="text-2xl font-black text-slate-900 tracking-tight">
+                                    {order.procurementTotal || order.total}
+                                </span>
                             </div>
                         </div>
                         <div className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">
-                            Authorized
+                            Authorized per PO
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Sticky Action Footer */}
-            <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-xl border-t border-slate-100 lg:left-64 flex gap-4">
-                {status === 'new' && (
+            <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/90 backdrop-blur-2xl border-t border-slate-100 lg:left-64 flex gap-4 z-[100]">
+                {(status === 'new' || status === 'assigned' || status === 'pending_assignment') && (
                     <>
                         <button
                             onClick={() => handleAction('accepted')}
@@ -248,6 +330,14 @@ export default function OrderDetailScreen() {
                     </div>
                 )}
             </div>
+
+            {/* Document Viewer Overlay */}
+            <DocumentViewer
+                isOpen={isDocOpen}
+                onClose={() => setIsDocOpen(false)}
+                type={docType}
+                data={docType === 'DC' ? order.deliveryChallan : order.grn}
+            />
         </div>
     );
 }

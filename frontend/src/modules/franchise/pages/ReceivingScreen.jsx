@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     PackageCheck,
     ChevronLeft,
+    ChevronRight,
     Search,
     Truck,
     AlertTriangle,
@@ -10,21 +11,44 @@ import {
     Plus,
     Minus,
     ClipboardCheck,
-    X
+    X,
+    FileText
 } from 'lucide-react';
 import { useGRN } from '../contexts/GRNContext';
 import { useInventory } from '../contexts/InventoryContext';
 import StatusBadge from '../components/common/StatusBadge';
 import { cn } from '@/lib/utils';
+import { useOrders } from '@/modules/user/contexts/OrderContext';
+import DocumentViewer from '../../vendor/components/documents/DocumentViewer';
 
 export default function ReceivingScreen() {
     const { purchaseOrders, submitGRN } = useGRN();
-    const { inventory } = useInventory();
+    const { inventory, addStock } = useInventory();
+    const { orders: contextOrders, updateOrderStatus } = useOrders();
     const [selectedPO, setSelectedPO] = useState(null);
     const [receivingData, setReceivingData] = useState({}); // { itemId: { received, damage, reason } }
+    const [isDocOpen, setIsDocOpen] = useState(false);
+    const [docType, setDocType] = useState('GRN');
     const [searchQuery, setSearchQuery] = useState('');
 
-    const filteredPOs = purchaseOrders.filter(po =>
+    const filteredPOs = [
+        ...purchaseOrders,
+        ...contextOrders
+            .filter(o => o.status === 'completed' && !o.grn) // Only show dispatched orders that don't have a GRN yet
+            .map(o => ({
+                poNumber: o.id,
+                vendor: 'KrishiKart Indore',
+                date: new Date().toLocaleDateString(),
+                status: 'dispatched',
+                items: o.items.map(i => ({
+                    id: i.id || Math.random().toString(36).substr(2, 9),
+                    productId: i.id,
+                    productName: i.name,
+                    expectedQty: i.quantity || i.qty,
+                    unit: i.unit || 'units'
+                }))
+            }))
+    ].filter(po =>
         po.poNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
         po.vendor.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -33,7 +57,8 @@ export default function ReceivingScreen() {
         setSelectedPO(po);
         const initialData = {};
         po.items.forEach(item => {
-            initialData[item.id] = {
+            const itemId = item.productId || item.id;
+            initialData[itemId] = {
                 received: item.expectedQty,
                 damage: 0,
                 reason: ''
@@ -51,7 +76,8 @@ export default function ReceivingScreen() {
 
     const handleSubmit = () => {
         const processedItems = selectedPO.items.map(item => {
-            const data = receivingData[item.id];
+            const itemId = item.productId || item.id;
+            const data = receivingData[itemId];
             return {
                 ...item,
                 receivedQty: data.received,
@@ -61,7 +87,34 @@ export default function ReceivingScreen() {
             };
         });
 
-        submitGRN(selectedPO.id, processedItems);
+        // Generate GRN Metadata
+        const grn = {
+            id: `GRN-${selectedPO.poNumber.split('-')[1] || Math.floor(10000 + Math.random() * 90000)}`,
+            date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+            sourceNode: selectedPO.vendor,
+            destNode: 'Franchise Main Center',
+            items: processedItems.map(i => ({
+                name: i.name,
+                quantity: i.expectedQty,
+                receivedQty: i.receivedQty,
+                damageQty: i.damageQty,
+                unit: i.unit
+            }))
+        };
+
+        const orderId = selectedPO.poNumber;
+        const liveOrderId = orderId.startsWith('ORD-') ? orderId : `ORD-${orderId.split('-')[1] || '9921'}`;
+
+        // 1. Add Stock to Franchise Inventory
+        const stockItemsToAdd = processedItems.map(i => ({
+            productId: i.productId || i.id,
+            qty: i.receivedQty
+        }));
+        addStock(stockItemsToAdd);
+
+        // 2. Update status and GRN metadata
+        updateOrderStatus(liveOrderId, 'received', { grn });
+        submitGRN(orderId, processedItems);
         setSelectedPO(null);
     };
 
@@ -105,7 +158,7 @@ export default function ReceivingScreen() {
                     <div className="space-y-4">
                         {filteredPOs.map((po) => (
                             <motion.div
-                                key={po.id}
+                                key={po.poNumber}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => handleSelectPO(po)}
                                 className="bg-white rounded-[32px] p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all cursor-pointer group"
@@ -156,11 +209,31 @@ export default function ReceivingScreen() {
                             <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[60%] bg-primary/10 rounded-full blur-3xl" />
                         </div>
 
+                        {/* View Original DC Button */}
+                        {contextOrders.find(o => o.id.includes(selectedPO.id))?.deliveryChallan && (
+                            <button
+                                onClick={() => { setDocType('DC'); setIsDocOpen(true); }}
+                                className="w-full mb-6 p-4 bg-indigo-50 text-indigo-600 rounded-3xl border border-indigo-100 flex items-center justify-between group active:scale-[0.98] transition-all"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-indigo-500">
+                                        <FileText size={20} />
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Vendor Sent Manifest</p>
+                                        <p className="text-xs font-black">View Original Delivery Challan</p>
+                                    </div>
+                                </div>
+                                <ChevronRight className="group-hover:translate-x-1 transition-transform" />
+                            </button>
+                        )}
+
                         <div className="space-y-4">
                             {selectedPO.items.map((item) => {
-                                const data = receivingData[item.id] || {};
+                                const itemId = item.productId || item.id;
+                                const data = receivingData[itemId] || {};
                                 return (
-                                    <div key={item.id} className="bg-white rounded-[32px] p-5 border border-slate-100 shadow-sm">
+                                    <div key={itemId} className="bg-white rounded-[32px] p-5 border border-slate-100 shadow-sm">
                                         <div className="flex items-center justify-between mb-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
@@ -178,7 +251,7 @@ export default function ReceivingScreen() {
                                                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Received {item.unit}</p>
                                                 <div className="flex items-center bg-slate-50 rounded-xl border border-slate-100 p-1">
                                                     <button
-                                                        onClick={() => updateItem(item.id, 'received', Math.max(0, data.received - 1))}
+                                                        onClick={() => updateItem(item.productId || item.id, 'received', Math.max(0, data.received - 1))}
                                                         className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400"
                                                     >
                                                         <Minus size={14} />
@@ -186,11 +259,11 @@ export default function ReceivingScreen() {
                                                     <input
                                                         type="number"
                                                         value={data.received}
-                                                        onChange={(e) => updateItem(item.id, 'received', parseInt(e.target.value) || 0)}
+                                                        onChange={(e) => updateItem(item.productId || item.id, 'received', parseInt(e.target.value) || 0)}
                                                         className="bg-transparent w-full text-center font-black text-xs outline-none"
                                                     />
                                                     <button
-                                                        onClick={() => updateItem(item.id, 'received', data.received + 1)}
+                                                        onClick={() => updateItem(item.productId || item.id, 'received', data.received + 1)}
                                                         className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400"
                                                     >
                                                         <Plus size={14} />
@@ -202,7 +275,7 @@ export default function ReceivingScreen() {
                                                 <p className="text-[9px] font-black text-red-400 uppercase tracking-widest px-1">Damaged/Short</p>
                                                 <div className="flex items-center bg-red-50/30 rounded-xl border border-red-100 p-1">
                                                     <button
-                                                        onClick={() => updateItem(item.id, 'damage', Math.max(0, data.damage - 1))}
+                                                        onClick={() => updateItem(item.productId || item.id, 'damage', Math.max(0, data.damage - 1))}
                                                         className="w-8 h-8 rounded-lg bg-white border border-red-100 flex items-center justify-center text-red-400"
                                                     >
                                                         <Minus size={14} />
@@ -210,11 +283,11 @@ export default function ReceivingScreen() {
                                                     <input
                                                         type="number"
                                                         value={data.damage}
-                                                        onChange={(e) => updateItem(item.id, 'damage', parseInt(e.target.value) || 0)}
+                                                        onChange={(e) => updateItem(item.productId || item.id, 'damage', parseInt(e.target.value) || 0)}
                                                         className="bg-transparent w-full text-center font-black text-xs text-red-500 outline-none"
                                                     />
                                                     <button
-                                                        onClick={() => updateItem(item.id, 'damage', data.damage + 1)}
+                                                        onClick={() => updateItem(item.productId || item.id, 'damage', data.damage + 1)}
                                                         className="w-8 h-8 rounded-lg bg-white border border-red-100 flex items-center justify-center text-red-400"
                                                     >
                                                         <Plus size={14} />
@@ -227,7 +300,7 @@ export default function ReceivingScreen() {
                                             <div className="mt-3">
                                                 <select
                                                     value={data.reason}
-                                                    onChange={(e) => updateItem(item.id, 'reason', e.target.value)}
+                                                    onChange={(e) => updateItem(item.productId || item.id, 'reason', e.target.value)}
                                                     className="w-full h-10 bg-slate-50 border border-slate-100 rounded-xl px-3 text-[10px] font-bold text-slate-600 outline-none focus:ring-2 focus:ring-primary/10"
                                                 >
                                                     <option value="">Select Reason for Damage</option>
@@ -243,7 +316,7 @@ export default function ReceivingScreen() {
                             })}
                         </div>
 
-                        <div className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-100 p-6 lg:relative lg:bg-transparent lg:border-0 lg:p-0 mt-8">
+                        <div className="mt-10 mb-6">
                             <button
                                 onClick={handleSubmit}
                                 className="w-full h-14 bg-primary text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-green-200 flex items-center justify-center gap-3 hover:bg-primary/90 transition-all active:scale-95"
@@ -254,6 +327,14 @@ export default function ReceivingScreen() {
                     </div>
                 )}
             </div>
-        </div>
+
+            {/* Document Viewer Overlay for DC and GRN */}
+            <DocumentViewer
+                isOpen={isDocOpen}
+                onClose={() => setIsDocOpen(false)}
+                type={docType}
+                data={docType === 'DC' ? selectedPO?.deliveryChallan : contextOrders.find(o => o.id.includes(selectedPO?.id))?.grn}
+            />
+        </div >
     );
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { User, MapPin, Bell, ChevronRight, Wallet, LogOut, Info, ShieldCheck, Heart, HelpCircle, UserCheck } from 'lucide-react'
+import { User, MapPin, Bell, ChevronRight, Wallet, LogOut, Info, ShieldCheck, Heart, HelpCircle, UserCheck, Package } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import PageTransition from '../components/layout/PageTransition'
 import { Button } from '@/components/ui/button'
@@ -17,9 +17,10 @@ export default function ProfileScreen() {
       title: "Account Settings",
       items: [
         { icon: User, label: "Edit Profile", path: "/edit-profile", color: "text-primary bg-primary/10" },
+        { icon: Package, label: "My Orders", path: "/orders", color: "text-blue-500 bg-blue-50" },
         { icon: MapPin, label: "Saved Addresses", path: "/address-book", color: "text-orange-500 bg-orange-50" },
         { icon: Wallet, label: "KK Wallet", path: "/wallet", color: "text-emerald-500 bg-emerald-50", badge: `₹${balance.toLocaleString()}` },
-        { icon: Bell, label: "Notifications", path: "/notifications", color: "text-blue-500 bg-blue-50" },
+        { icon: Bell, label: "Notifications", path: "/notifications", color: "text-indigo-500 bg-indigo-50" },
       ]
     },
     {

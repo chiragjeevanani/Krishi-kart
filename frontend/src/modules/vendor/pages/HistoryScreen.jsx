@@ -18,10 +18,13 @@ import {
 import mockOrders from '../data/mockVendorOrders.json';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { useOrders } from '@/modules/user/contexts/OrderContext';
 
 export default function HistoryScreen() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
+
+    const { orders: contextOrders } = useOrders();
 
     const [activeTab, setActiveTab] = useState('all');
 
@@ -30,7 +33,19 @@ export default function HistoryScreen() {
         return () => clearTimeout(timer);
     }, []);
 
-    const filteredOrders = mockOrders.filter(o => {
+    // Merge mock orders with live completed/rejected orders
+    const liveArchives = contextOrders
+        .filter(o => o.status === 'completed' || o.status === 'rejected')
+        .map(o => ({
+            ...o,
+            total: o.procurementTotal || o.total,
+            franchiseName: o.franchise || 'Main Center',
+            timestamp: o.lastUpdated || new Date().toISOString()
+        }));
+
+    const allArchives = [...liveArchives, ...mockOrders];
+
+    const filteredOrders = allArchives.filter(o => {
         if (activeTab === 'all') return o.status === 'completed' || o.status === 'rejected';
         return o.status === activeTab;
     });
@@ -111,6 +126,7 @@ export default function HistoryScreen() {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
+                        onClick={() => navigate(`/vendor/orders/${order.id}`)}
                         className={cn(
                             "bg-white p-5 rounded-[32px] border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-lg hover:shadow-slate-200/50 transition-all cursor-pointer overflow-hidden",
                             order.status === 'rejected' && "border-red-50"

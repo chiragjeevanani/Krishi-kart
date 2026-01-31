@@ -1,23 +1,58 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, Download, Plus, ChevronDown } from 'lucide-react';
+import { Search, Filter, Download, Plus, ChevronDown, X, Users, Star, MapPin, ArrowRight, ShoppingBag } from 'lucide-react';
 import OrdersTable from '../components/tables/OrdersTable';
 import mockOrders from '../data/mockAdminOrders.json';
+import mockVendors from '../data/mockVendors.json';
+import { useOrders } from '@/modules/user/contexts/OrderContext';
+import { cn } from '@/lib/utils';
 
 export default function OrdersScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
+    const { orders: contextOrders, updateOrderStatus } = useOrders();
+
+    // Combine context orders with mock orders, avoiding duplicates if any
+    const allOrders = [...contextOrders, ...mockOrders.filter(m => !contextOrders.find(c => c.id === m.id))];
+
+    const [selectedOrderForProcurement, setSelectedOrderForProcurement] = useState(null);
+
+    const handleOrderAction = (orderId, newStatus, additionalData = {}) => {
+        if (newStatus === 'initiate_procurement') {
+            const order = allOrders.find(o => o.id === orderId);
+            setSelectedOrderForProcurement(order);
+            return;
+        }
+
+        // If it's a context order, update it
+        if (contextOrders.find(o => o.id === orderId)) {
+            updateOrderStatus(orderId, newStatus, additionalData);
+        } else {
+            // For mock orders, we just show an alert or simulate
+            alert(`Mock Order ${orderId} updated to ${newStatus}`);
+        }
+    };
+
+    const handleFinalizeProcurement = (vendor) => {
+        if (selectedOrderForProcurement) {
+            handleOrderAction(selectedOrderForProcurement.id, 'assigned', {
+                assignedVendor: vendor.name
+            });
+            setSelectedOrderForProcurement(null);
+        }
+    };
 
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 600);
         return () => clearTimeout(timer);
     }, []);
 
-    const filteredOrders = mockOrders.filter(order => {
-        const matchesSearch = order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const filteredOrders = allOrders.filter(order => {
+        const customerName = order.customer || 'Unknown';
+        const matchesSearch = customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             order.id.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesFilter = activeFilter === 'all' || order.status === activeFilter;
+        const matchesFilter = activeFilter === 'all' || order.status.toLowerCase() === activeFilter.toLowerCase();
         return matchesSearch && matchesFilter;
     });
 
@@ -106,7 +141,7 @@ export default function OrdersScreen() {
 
             {/* Orders Table */}
             <div className="bg-white/50 rounded-[32px] overflow-hidden border border-slate-50/50">
-                <OrdersTable orders={filteredOrders} />
+                <OrdersTable orders={filteredOrders} onAction={handleOrderAction} />
 
                 {filteredOrders.length === 0 && (
                     <div className="py-20 flex flex-col items-center text-center">
@@ -118,6 +153,91 @@ export default function OrdersScreen() {
                     </div>
                 )}
             </div>
+
+            {/* Vendor Picker Drawer */}
+            <AnimatePresence>
+                {selectedOrderForProcurement && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setSelectedOrderForProcurement(null)}
+                            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60]"
+                        />
+                        <motion.div
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            className="fixed right-0 top-0 h-full w-full max-w-md bg-[#f8fafd] shadow-2xl z-[70] overflow-hidden flex flex-col"
+                        >
+                            <div className="bg-white p-8 border-b border-slate-100">
+                                <div className="flex items-center justify-between mb-8">
+                                    <div className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full uppercase tracking-widest">Procurement Workflow</div>
+                                    <button onClick={() => setSelectedOrderForProcurement(null)} className="p-2 hover:bg-slate-50 rounded-xl text-slate-400 transition-colors">
+                                        <X size={20} />
+                                    </button>
+                                </div>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <ShoppingBag className="text-primary" size={24} />
+                                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">{selectedOrderForProcurement.id}</h2>
+                                </div>
+                                <p className="text-slate-500 font-medium text-sm">Assign a vendor to fulfill items for {selectedOrderForProcurement.customer}.</p>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
+                                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Recommended Vendors</h3>
+                                {mockVendors.map((vendor, index) => (
+                                    <motion.div
+                                        key={vendor.id}
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: index * 0.1 }}
+                                        className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm hover:shadow-md transition-all group"
+                                    >
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex gap-4">
+                                                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                                    <Users size={22} />
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-black text-slate-900 tracking-tight">{vendor.name}</h4>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <div className="flex items-center gap-0.5 text-amber-500 font-black text-[10px]">
+                                                            <Star size={10} fill="currentColor" /> {vendor.rating}
+                                                        </div>
+                                                        <span className="text-[10px] text-slate-300 font-black uppercase">•</span>
+                                                        <span className="text-[10px] text-slate-400 font-black uppercase tracking-wider">{vendor.category}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="text-[8px] font-black text-slate-300 uppercase tracking-widest leading-none">Capacity</div>
+                                                <div className="text-sm font-black text-slate-900 mt-1">{vendor.capacity}%</div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-6 flex items-center justify-between gap-4">
+                                            <div className="flex items-center gap-2 text-slate-400">
+                                                <MapPin size={12} />
+                                                <span className="text-[10px] font-bold">Primary Region</span>
+                                            </div>
+                                            <button
+                                                onClick={() => handleFinalizeProcurement(vendor)}
+                                                className="bg-primary text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl hover:bg-emerald-600 active:scale-95 transition-all shadow-lg shadow-emerald-50 flex items-center gap-2"
+                                            >
+                                                Assign Vendor
+                                                <ArrowRight size={14} />
+                                            </button>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

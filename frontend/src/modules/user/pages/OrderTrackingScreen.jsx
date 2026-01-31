@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, MapPin, Phone, MessageSquare, Package, Truck, CheckCircle2, MessageSquare as MessageSquareIcon } from 'lucide-react'
 import PageTransition from '../components/layout/PageTransition'
 import { Button } from '@/components/ui/button'
-import { useOrders } from '../contexts/OrderContext'
+import { useOrders } from '@/modules/user/contexts/OrderContext'
 
 const steps = [
     { label: 'Order Confirmed', status: 'completed', time: '10:30 AM', icon: CheckCircle2 },

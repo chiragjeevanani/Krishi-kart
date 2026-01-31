@@ -24,11 +24,26 @@ export default function FranchiseStockMonitoringScreen() {
     const [viewMode, setViewMode] = useState('network'); // 'network' or 'detail'
     const [isLoading, setIsLoading] = useState(true);
     const [selectedFranchiseId, setSelectedFranchiseId] = useState(null);
+    const [liveFranchiseInventory, setLiveFranchiseInventory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Load live inventory from localStorage (simulating central monitoring of franchise hubs)
     useEffect(() => {
+        const loadLiveInventory = () => {
+            const saved = localStorage.getItem('franchise_inventory');
+            if (saved) {
+                setLiveFranchiseInventory(JSON.parse(saved));
+            }
+        };
+
+        loadLiveInventory();
+        window.addEventListener('storage', loadLiveInventory);
+
         const timer = setTimeout(() => setIsLoading(false), 800);
-        return () => clearTimeout(timer);
+        return () => {
+            window.removeEventListener('storage', loadLiveInventory);
+            clearTimeout(timer);
+        };
     }, [selectedFranchiseId, viewMode]);
 
     const handleFranchiseClick = (id) => {
@@ -37,8 +52,30 @@ export default function FranchiseStockMonitoringScreen() {
         setViewMode('detail');
     };
 
+    // Combine mock franchises with live inventory for the specific "Koramangala" hub (F-003) 
+    // since 'franchise_inventory' currently represents our active simulation hub.
+    const franchises = mockStock.franchises.map(f => {
+        if (f.franchiseId === 'F-003' && liveFranchiseInventory.length > 0) {
+            return {
+                ...f,
+                stock: f.stock.map(s => {
+                    const liveItem = liveFranchiseInventory.find(li => li.id === s.productId || li.productId === s.productId);
+                    if (liveItem) {
+                        return {
+                            ...s,
+                            currentStock: liveItem.currentStock,
+                            alertStatus: liveItem.currentStock < s.mbq ? (liveItem.currentStock === 0 ? 'critical' : 'low') : 'ok'
+                        };
+                    }
+                    return s;
+                })
+            };
+        }
+        return f;
+    });
+
     const activeFranchise = selectedFranchiseId
-        ? mockStock.franchises.find(f => f.franchiseId === selectedFranchiseId)
+        ? franchises.find(f => f.franchiseId === selectedFranchiseId)
         : null;
 
     const filteredStock = activeFranchise?.stock.filter(item =>
@@ -47,12 +84,12 @@ export default function FranchiseStockMonitoringScreen() {
 
     // Global Stats
     const globalStats = {
-        totalFranchises: mockStock.franchises.length,
-        criticalAlerts: mockStock.franchises.reduce((acc, f) =>
+        totalFranchises: franchises.length,
+        criticalAlerts: franchises.reduce((acc, f) =>
             acc + f.stock.filter(s => s.alertStatus === 'critical').length, 0),
-        lowStockAlerts: mockStock.franchises.reduce((acc, f) =>
+        lowStockAlerts: franchises.reduce((acc, f) =>
             acc + f.stock.filter(s => s.alertStatus === 'low').length, 0),
-        healthyFranchises: mockStock.franchises.filter(f =>
+        healthyFranchises: franchises.filter(f =>
             f.stock.every(s => s.alertStatus === 'ok')).length
     };
 
@@ -98,7 +135,7 @@ export default function FranchiseStockMonitoringScreen() {
                                 }}
                                 className="appearance-none bg-white border border-slate-100 outline-none py-3.5 px-6 pr-12 rounded-2xl text-sm font-black text-slate-700 cursor-pointer shadow-sm hover:bg-slate-50 transition-all"
                             >
-                                {mockStock.franchises.map(f => (
+                                {franchises.map(f => (
                                     <option key={f.franchiseId} value={f.franchiseId}>{f.franchiseName}</option>
                                 ))}
                             </select>
@@ -193,7 +230,7 @@ export default function FranchiseStockMonitoringScreen() {
                         exit={{ opacity: 0 }}
                         className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
                     >
-                        {mockStock.franchises.map((franchise) => {
+                        {franchises.map((franchise) => {
                             const criticalCount = franchise.stock.filter(s => s.alertStatus === 'critical').length;
                             const totalItems = franchise.stock.length;
                             const healthyCount = franchise.stock.filter(s => s.alertStatus === 'ok').length;

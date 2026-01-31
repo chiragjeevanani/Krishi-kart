@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useOrders } from '@/modules/user/contexts/OrderContext';
 
 const mockDispatches = [
     {
@@ -46,9 +47,26 @@ const mockDispatches = [
 
 export default function DispatchHistoryScreen() {
     const navigate = useNavigate();
+    const { orders: contextOrders } = useOrders();
     const [searchQuery, setSearchQuery] = useState('');
 
-    const filteredDispatches = mockDispatches.filter(d =>
+    // Merge mock dispatches with live completed orders
+    const liveDispatches = contextOrders
+        .filter(o => o.status === 'completed')
+        .map(o => ({
+            id: `GC-${o.id.split('-')[1] || o.id.slice(-5)}`,
+            orderId: o.id,
+            date: o.date || new Date().toISOString().split('T')[0],
+            time: 'Just Now',
+            hub: o.franchise || 'Main Center',
+            weight: '45.0 KG',
+            status: 'Delivered',
+            items: o.items?.length || 0
+        }));
+
+    const allDispatches = [...liveDispatches, ...mockDispatches];
+
+    const filteredDispatches = allDispatches.filter(d =>
         d.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         d.hub.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -97,6 +115,7 @@ export default function DispatchHistoryScreen() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.05 }}
+                                onClick={() => navigate(`/vendor/orders/${dispatch.orderId || 'ORD-2091'}`)}
                                 className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col gap-5 hover:border-primary/20 transition-all group cursor-pointer active:scale-[0.98]"
                             >
                                 <div className="flex justify-between items-start">

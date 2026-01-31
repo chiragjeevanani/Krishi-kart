@@ -15,32 +15,50 @@ import {
 import mockOrders from '../data/mockVendorOrders.json';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { useOrders } from '@/modules/user/contexts/OrderContext';
+
+const tabs = [
+    { id: 'new', label: 'New Orders', icon: ClipboardList },
+    { id: 'preparing', label: 'Preparing', icon: Clock },
+    { id: 'ready', label: 'Ready', icon: CheckCircle2 },
+    { id: 'completed', label: 'Completed', icon: Truck }
+];
 
 export default function OrdersScreen() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('new');
     const [searchTerm, setSearchTerm] = useState('');
+    const { orders: contextOrders } = useOrders();
+
+    // Map context orders that require procurement into the vendor format
+    const liveVendorOrders = contextOrders
+        .filter(o => o.fulfillmentType === 'requires_procurement')
+        .map(o => ({
+            id: o.id,
+            franchiseName: o.franchise || 'Main Center',
+            total: o.procurementTotal || o.total,
+            procurementTotal: o.procurementTotal,
+            status: (o.status === 'assigned' || !o.status) ? 'new' : o.status,
+            items: o.items,
+            priority: 'normal',
+            deadline: new Date(Date.now() + 3600000).toISOString() // 1 hour from now
+        }));
+
+    const allOrders = [...liveVendorOrders, ...mockOrders.filter(m => !liveVendorOrders.find(l => l.id === m.id))];
 
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 600);
         return () => clearTimeout(timer);
     }, []);
 
-    const tabs = [
-        { id: 'new', label: 'New', icon: ClipboardList, color: 'blue' },
-        { id: 'preparing', label: 'Preparing', icon: Package, color: 'amber' },
-        { id: 'ready', label: 'Ready', icon: CheckCircle2, color: 'emerald' },
-        { id: 'completed', label: 'Fished', icon: Truck, color: 'slate' }
-    ];
-
-    const filteredOrders = mockOrders.filter(order => {
+    const filteredOrders = allOrders.filter(order => {
         const matchesTab = activeTab === 'completed'
             ? order.status === 'completed'
             : activeTab === 'new'
                 ? order.status === 'new'
                 : order.status === activeTab;
-        const matchesSearch = order.franchiseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        const matchesSearch = (order.franchiseName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             order.id.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesTab && matchesSearch;
     });

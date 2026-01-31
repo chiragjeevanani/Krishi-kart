@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import StatusBadge from '../common/StatusBadge';
-import { MoreVertical, ExternalLink, IndianRupee, CreditCard, Wallet, Banknote } from 'lucide-react';
+import { MoreVertical, ExternalLink, IndianRupee, CreditCard, Wallet, Banknote, ShoppingBag } from 'lucide-react';
 
 const PaymentBadge = ({ method }) => {
     const config = {
@@ -19,7 +19,7 @@ const PaymentBadge = ({ method }) => {
     );
 };
 
-export default function OrdersTable({ orders }) {
+export default function OrdersTable({ orders, onAction }) {
     return (
         <div className="overflow-x-auto no-scrollbar">
             <table className="w-full text-left border-separate border-spacing-y-2">
@@ -59,21 +59,61 @@ export default function OrdersTable({ orders }) {
                                 <StatusBadge status={order.status} />
                             </td>
                             <td className="px-6 py-5 border-y border-slate-100 group-hover:border-primary/20 transition-colors">
-                                <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-lg ${order.fulfilmentStatus === 'completed' ? 'bg-emerald-100 text-emerald-700' :
-                                        order.fulfilmentStatus === 'pending' ? 'bg-amber-100 text-amber-700' :
-                                            'bg-blue-100 text-blue-700'
-                                    }`}>
-                                    {order.fulfilmentStatus || 'Pending'}
-                                </span>
+                                <div className="flex flex-col gap-1">
+                                    <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-lg w-fit ${order.fulfillmentType === 'franchise_stock' ? 'bg-emerald-100 text-emerald-700' :
+                                        order.fulfillmentType === 'requires_procurement' ? 'bg-indigo-100 text-indigo-700' :
+                                            'bg-slate-100 text-slate-700'
+                                        }`}>
+                                        {order.fulfillmentType ? order.fulfillmentType.replace('_', ' ') : 'Pending Routing'}
+                                    </span>
+                                    {order.stockStatus && (
+                                        <span className="text-[8px] font-bold text-slate-400 px-1 italic">
+                                            {order.stockStatus}
+                                        </span>
+                                    )}
+                                    {order.assignedVendor && (
+                                        <div className="flex flex-col gap-1 mt-1">
+                                            <span className="text-[8px] font-black text-indigo-500 px-1 uppercase tracking-tighter">
+                                                Via: {order.assignedVendor}
+                                            </span>
+                                            {['accepted', 'preparing', 'ready'].includes(order.status) && (
+                                                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-indigo-50/50 rounded-md w-fit border border-indigo-100/50">
+                                                    <div className="w-1 h-1 rounded-full bg-indigo-400 animate-pulse" />
+                                                    <span className="text-[7px] font-black text-indigo-600 uppercase">
+                                                        {order.status === 'accepted' ? 'PO Accepted' :
+                                                            order.status === 'preparing' ? 'Being Packed' :
+                                                                order.status === 'ready' ? 'Ready for Pickup' : order.status}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             </td>
-                            <td className="px-6 py-5 border-y border-slate-100 group-hover:border-primary/20 transition-colors">
-                                <div className="flex items-center gap-1 font-black text-slate-900 text-sm">
-                                    <IndianRupee size={12} className="text-slate-400" />
-                                    {order.total}
+                            <td className="px-6 py-5 border-y border-slate-100 group-hover:border-primary/20 transition-colors text-right">
+                                <div className="flex flex-col items-end gap-1 font-black text-slate-900">
+                                    <div className="flex items-center gap-1">
+                                        <IndianRupee size={12} className="text-slate-400" />
+                                        {order.total}
+                                    </div>
+                                    {order.procurementTotal && (
+                                        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">
+                                            Cost: ₹{order.procurementTotal}
+                                        </span>
+                                    )}
                                 </div>
                             </td>
                             <td className="px-6 py-5 last:rounded-r-2xl border-y border-r border-slate-100 group-hover:border-primary/20 transition-colors">
                                 <div className="flex items-center gap-2">
+                                    {(order.fulfillmentType === 'requires_procurement' && order.status === 'new') && (
+                                        <button
+                                            onClick={() => onAction?.(order.id, 'initiate_procurement')}
+                                            className="px-3 py-1.5 bg-indigo-500 text-white text-[10px] font-black rounded-lg hover:bg-indigo-600 transition-all shadow-md shadow-indigo-100 flex items-center gap-1.5 whitespace-nowrap"
+                                        >
+                                            <ShoppingBag size={12} />
+                                            Procure
+                                        </button>
+                                    )}
                                     <button className="p-2 text-slate-400 hover:text-primary hover:bg-white rounded-lg transition-all">
                                         <ExternalLink size={16} />
                                     </button>

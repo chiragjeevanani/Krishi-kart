@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Package,
@@ -11,11 +11,14 @@ import {
     Scale,
     ShieldCheck,
     AlertCircle,
-    Loader2
+    Loader2,
+    FileText
 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import mockOrders from '../data/mockVendorOrders.json';
 import { cn } from '@/lib/utils';
+import { useOrders } from '@/modules/user/contexts/OrderContext';
+import DocumentViewer from '../components/documents/DocumentViewer';
 
 export default function PackingScreen() {
     const navigate = useNavigate();
@@ -24,17 +27,37 @@ export default function PackingScreen() {
     const [isDispatching, setIsDispatching] = useState(false);
     const [checkedItems, setCheckedItems] = useState({});
     const [step, setStep] = useState(1); // 1: Packing, 2: Weight, 3: Dispatch, 4: Success
+    const [isDocOpen, setIsDocOpen] = useState(false);
+    const { orders: contextOrders, updateOrderStatus } = useOrders();
 
-    const order = mockOrders.find(o => o.id === orderId) || mockOrders[0];
+    // Memoize the order calculation to prevent infinite loops
+    const order = useMemo(() => {
+        const foundMock = mockOrders.find(o => o.id === orderId);
+        if (foundMock) return foundMock;
+
+        const liveOrder = contextOrders.find(o => o.id === orderId);
+        if (liveOrder) {
+            return {
+                id: orderId,
+                franchiseName: liveOrder.franchise || 'Main Center',
+                items: liveOrder.items.map(i => ({
+                    name: i.name,
+                    quantity: i.quantity || parseInt(i.qty),
+                    unit: i.unit || 'units'
+                }))
+            };
+        }
+        return mockOrders[0];
+    }, [orderId, contextOrders]);
 
     useEffect(() => {
-        // Init checklist
+        // Only init checklist if not already set for this order
         const init = {};
         order.items.forEach(item => {
             init[item.name] = false;
         });
         setCheckedItems(init);
-    }, [order]);
+    }, [order.id]); // Stability: only reset if order ID changes
 
     const handleToggleCheck = (name) => {
         setCheckedItems(prev => ({ ...prev, [name]: !prev[name] }));
@@ -45,6 +68,21 @@ export default function PackingScreen() {
     const handleFinalDispatch = () => {
         setIsDispatching(true);
         setTimeout(() => {
+            // Generate Delivery Challan metadata
+            const deliveryChallan = {
+                id: `DC-${order.id.split('-')[1] || Math.floor(10000 + Math.random() * 90000)}`,
+                date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+                sourceNode: 'KrishiKart Indore',
+                destNode: order.franchiseName,
+                items: order.items.map(i => ({ ...i, quantity: i.quantity || i.qty })),
+                weight: '42.5 KG'
+            };
+
+            // Update live order status if applicable
+            if (contextOrders.find(o => o.id === orderId)) {
+                updateOrderStatus(orderId, 'completed', { deliveryChallan });
+            }
+
             setIsDispatching(false);
             setStep(4);
         }, 2000);
@@ -250,6 +288,12 @@ export default function PackingScreen() {
 
                         <div className="space-y-3">
                             <button
+                                onClick={() => setIsDocOpen(true)}
+                                className="w-full bg-emerald-50 text-emerald-600 py-5 rounded-[24px] font-black text-sm flex items-center justify-center gap-3 shadow-inner active:scale-95 transition-all"
+                            >
+                                <FileText size={18} /> View Delivery Challan
+                            </button>
+                            <button
                                 onClick={() => navigate('/vendor/dashboard')}
                                 className="w-full bg-slate-900 text-white py-5 rounded-[24px] font-black text-sm flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all"
                             >
@@ -265,6 +309,19 @@ export default function PackingScreen() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Document Viewer Overlay */}
+            <DocumentViewer
+                isOpen={isDocOpen}
+                onClose={() => setIsDocOpen(false)}
+                type="DC"
+                data={contextOrders.find(o => o.id === orderId)?.deliveryChallan || {
+                    id: 'DC-TEMP',
+                    date: new Date().toLocaleDateString(),
+                    items: order.items,
+                    destNode: order.franchiseName
+                }}
+            />
         </div>
     );
 }

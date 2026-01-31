@@ -3,9 +3,11 @@ import { cn } from '@/lib/utils';
 const statusConfig = {
     pending_assignment: { label: 'Pending Assignment', bg: 'bg-amber-50', text: 'text-amber-600', dot: 'bg-amber-400' },
     assigned: { label: 'Assigned', bg: 'bg-blue-50', text: 'text-blue-600', dot: 'bg-blue-400' },
+    accepted: { label: 'PO Accepted', bg: 'bg-indigo-50', text: 'text-indigo-600', dot: 'bg-indigo-400' },
+    preparing: { label: 'Being Packed', bg: 'bg-amber-50', text: 'text-amber-600', dot: 'bg-amber-400' },
+    ready: { label: 'Ready for Pickup', bg: 'bg-primary/10', text: 'text-primary', dot: 'bg-primary' },
     in_transit: { label: 'In Transit', bg: 'bg-purple-50', text: 'text-purple-600', dot: 'bg-purple-400' },
     delivered: { label: 'Delivered', bg: 'bg-emerald-50', text: 'text-emerald-600', dot: 'bg-emerald-400' },
-    ready: { label: 'Ready for Pickup', bg: 'bg-primary/10', text: 'text-primary', dot: 'bg-primary' },
     incoming: { label: 'Incoming', bg: 'bg-slate-100', text: 'text-slate-600', dot: 'bg-slate-400' }
 };
 

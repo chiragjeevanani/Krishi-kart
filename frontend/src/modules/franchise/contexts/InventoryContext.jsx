@@ -26,16 +26,40 @@ export const InventoryProvider = ({ children }) => {
 
     const updateStock = (productId, newQty) => {
         setInventory(prev => prev.map(item =>
-            item.id === productId
+            (item.id === productId || item.productId === productId)
                 ? { ...item, currentStock: Math.max(0, newQty), lastUpdated: new Date().toISOString() }
                 : item
         ));
     };
 
+    const deductStock = (itemsToDeduct) => {
+        // itemsToDeduct: Array of { productId, qty, name }
+        let errors = [];
+        setInventory(prev => {
+            const nextInventory = prev.map(item => {
+                const deduction = itemsToDeduct.find(i => i.productId === item.id || i.id === item.id || i.productId === item.productId);
+                if (deduction) {
+                    if (item.currentStock < deduction.qty) {
+                        errors.push(`Insufficient stock for ${item.name}`);
+                        return item;
+                    }
+                    return {
+                        ...item,
+                        currentStock: item.currentStock - deduction.qty,
+                        lastUpdated: new Date().toISOString()
+                    };
+                }
+                return item;
+            });
+            return nextInventory;
+        });
+        return errors;
+    };
+
     const addStock = (itemsToAdd) => {
         // itemsToAdd: Array of { productId, qty }
         setInventory(prev => prev.map(item => {
-            const added = itemsToAdd.find(i => i.productId === item.id);
+            const added = itemsToAdd.find(i => i.productId === item.id || i.id === item.id || i.productId === item.productId);
             if (added) {
                 return {
                     ...item,
@@ -69,6 +93,7 @@ export const InventoryProvider = ({ children }) => {
             loading,
             updateStock,
             addStock,
+            deductStock,
             getLowStockItems,
             getStockStats
         }}>

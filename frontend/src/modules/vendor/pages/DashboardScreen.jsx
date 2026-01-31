@@ -11,11 +11,13 @@ import {
     ChevronRight,
     ArrowUpRight,
     IndianRupee,
-    Percent
+    Percent,
+    Wallet
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import mockData from '../data/mockVendorStats.json';
 import { cn } from '@/lib/utils';
+import { useOrders } from '@/modules/user/contexts/OrderContext';
 
 const StatCard = ({ label, value, icon: Icon, color, index }) => (
     <motion.div
@@ -46,6 +48,20 @@ export default function DashboardScreen() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const { stats, performance } = mockData;
+    const { orders: contextOrders } = useOrders();
+
+    const liveActiveOrders = contextOrders.filter(o =>
+        o.fulfillmentType === 'requires_procurement' &&
+        ['assigned', 'accepted', 'preparing', 'ready'].includes(o.status)
+    ).length;
+
+    const pendingSettlement = contextOrders
+        .filter(o => o.fulfillmentType === 'requires_procurement' && ['assigned', 'accepted', 'preparing', 'ready'].includes(o.status))
+        .reduce((sum, o) => sum + (o.procurementTotal || 0), 0);
+
+    const totalTurnover = contextOrders
+        .filter(o => o.fulfillmentType === 'requires_procurement' && o.status === 'completed')
+        .reduce((sum, o) => sum + (o.procurementTotal || 0), 0) + performance.monthlyRevenue;
 
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 800);
@@ -68,7 +84,15 @@ export default function DashboardScreen() {
             <header className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight">Today's Pulse</h1>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Status: Operational (Ready)</p>
+                    <div className="flex items-center gap-2 mt-1">
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Status: Operational</p>
+                        {liveActiveOrders > 0 && (
+                            <span className="flex items-center gap-1.5 px-2 py-0.5 bg-primary/10 text-primary rounded-full text-[10px] font-black uppercase tracking-wider animate-pulse">
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                {liveActiveOrders} Live Operations
+                            </span>
+                        )}
+                    </div>
                 </div>
                 <button className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 transition-all">
                     <PlusCircle size={24} />
@@ -78,31 +102,31 @@ export default function DashboardScreen() {
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
-                    label="Commission Rate"
-                    value={`${performance.commission.percentage}%`}
-                    icon={Percent}
+                    label="Pending Settlement"
+                    value={`₹${(pendingSettlement || 124000).toLocaleString()}`}
+                    icon={Wallet}
                     color="blue"
                     index={0}
                 />
                 <StatCard
-                    label="New Orders"
-                    value={stats.ordersAssigned}
-                    icon={ClipboardList}
+                    label="Next Payout"
+                    value="In 4 Days"
+                    icon={Clock}
                     color="amber"
                     index={1}
                 />
                 <StatCard
-                    label="Pending Dispatch"
-                    value={stats.pendingDispatch}
-                    icon={Clock}
-                    color="emerald"
+                    label="Deductions"
+                    value="₹4,200"
+                    icon={TrendingUp}
+                    color="amber"
                     index={2}
                 />
                 <StatCard
                     label="Monthly Turnover"
-                    value={`₹${performance.monthlyRevenue.toLocaleString()}`}
-                    icon={TrendingUp}
-                    color="slate"
+                    value={`₹${totalTurnover.toLocaleString()}`}
+                    icon={IndianRupee}
+                    color="emerald"
                     index={3}
                 />
             </div>
@@ -145,7 +169,7 @@ export default function DashboardScreen() {
                             <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Completed</p>
                                 <p className="text-3xl font-black">{stats.completedDeliveries}</p>
-                                <p className="text-[8px] text-emerald-400 font-bold mt-1 uppercase">+12 This Week</p>
+                                <p className="text-[8px] text-emerald-400 font-bold mt-1 uppercase">Settled on Receipt</p>
                             </div>
                         </div>
                     </div>

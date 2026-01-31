@@ -1,5 +1,22 @@
 [
     {
+        "id": "VEN-IND-001",
+        "name": "KrishiKart Indore",
+        "category": "Primary Mock Vendor",
+        "rating": 5.0,
+        "capacity": 100,
+        "status": "active",
+        "ordersFulfilled": 500,
+        "pendingWorkload": 2,
+        "monthlyTurnover": [
+            {
+                "month": "Jan",
+                "amount": 250000
+            }
+        ],
+        "totalTurnover": 250000
+    },
+    {
         "id": "VEN-001",
         "name": "Fresh Farm Vendors",
         "category": "Organic",

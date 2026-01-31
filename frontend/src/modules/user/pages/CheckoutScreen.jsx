@@ -15,7 +15,7 @@ import {
 import PageTransition from '../components/layout/PageTransition'
 import { Button } from '@/components/ui/button'
 import { useCart } from '../contexts/CartContext'
-import { useOrders } from '../contexts/OrderContext'
+import { useOrders } from '@/modules/user/contexts/OrderContext'
 import { useWallet } from '../contexts/WalletContext'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -44,7 +44,15 @@ export default function CheckoutScreen() {
 
         const order = placeOrder({
             total,
-            items: cartItems.map(item => ({ name: item.name, qty: `${item.quantity}${item.unit}`, price: item.price })),
+            customer: 'Hotel Taj Vivanta',
+            franchise: 'KrishiKart Koramangala',
+            items: cartItems.map(item => ({
+                id: item.id,
+                name: item.name,
+                quantity: item.quantity,
+                qty: `${item.quantity}${item.unit}`,
+                price: item.price
+            })),
             address: 'Flat 402, Galaxy Apartments, Kothrud, Pune',
             paymentMethod: selectedMethod === 'wallet' ? 'KK Wallet' : selectedMethod.toUpperCase()
         })
